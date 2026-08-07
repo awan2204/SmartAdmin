@@ -31,7 +31,7 @@ use App\Models\Absensi;
 use App\Models\Akademik;
 use App\Http\Controllers\UserMoodleController;
 use App\Models\Peminjaman;
-
+use App\Http\Controllers\ELearningController;
 
 use App\Http\Controllers\KerjaSamaController;
 // use App\Http\Controllers\UserController;
@@ -42,6 +42,11 @@ use App\Models\Tamu;
 use App\Http\Controllers\TamuController;
 use App\Models\Kerjasama;
 // use App\Http\Controllers\KerjaSamaController;
+
+use App\Http\Controllers\KeuanganController;
+
+use App\Http\Controllers\SppController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -380,4 +385,36 @@ Route::middleware(['userRole:siswa,guru,admin'])->group(function () {
     Route::get('/api/siswa-by-user/{id_user}', [SiswaController::class, 'getSiswaByUser']);
     Route::get('/api/guru-by-user/{id_user}', [GuruController::class, 'getGuruByUser']);
 });
+
+Route::get('/elearning', [ELearningController::class, 'index']);
+Route::post('/elearning', [ELearningController::class, 'store']);
+Route::delete('/elearning/{id}', [ELearningController::class, 'destroy']);
+
+Route::get('/administrasi/elearning', [ELearningController::class, 'index']);
+Route::post('/administrasi/elearning', [ElearningController::class, 'store']);
+Route::delete('/administrasi/elearning/{id}', [ELearningController::class, 'destroy']);
+
+Route::get('/elearning/download/{id}', [ElearningController::class, 'download'])->name('elearning.download');
+
+Route::middleware(['auth'])->group(function () {
+    // Route Menampilkan Halaman Keuangan
+    Route::get('/keuangan/spp', [KeuanganController::class, 'spp'])->name('keuangan.spp');
+    Route::get('/keuangan/daftar-ulang', [KeuanganController::class, 'daftarUlang'])->name('keuangan.daftar-ulang');
+    Route::get('/keuangan/pendapatan', [KeuanganController::class, 'pendapatan'])->name('keuangan.pendapatan');
+    Route::get('/keuangan/laporan-spp', [App\Http\Controllers\SppController::class, 'laporanSpp'])->name('keuangan.laporan-spp');
+
+    // Route Proses Import Excel
+    Route::post('/keuangan/spp/import', [KeuanganController::class, 'sppImport'])->name('keuangan.spp.import');
+
+    // ➕ TAMBAHKAN 2 BARIS INI:
+    Route::post('/keuangan/spp/store', [KeuanganController::class, 'store'])->name('keuangan.spp.store');
+    Route::delete('/keuangan/spp/{id}', [KeuanganController::class, 'destroy'])->name('keuangan.spp.destroy');
+});
+
+Route::prefix('keuangan')->name('keuangan.')->group(function () {
+    Route::get('/spp', [KeuanganController::class, 'spp'])->name('spp');
+    Route::post('/spp/import', [KeuanganController::class, 'sppImport'])->name('spp.import');
+    Route::post('/spp/store', [KeuanganController::class, 'sppStore'])->name('spp.store');
+}); 
+
 

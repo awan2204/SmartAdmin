@@ -35,8 +35,6 @@ class Siswa extends Model
         'asal_sekolah'
     ];
 
-    
-
     public function user()
     {
         return $this->belongsTo(User::class, 'id_user', 'id');
@@ -51,6 +49,7 @@ class Siswa extends Model
     {
         return $this->hasMany(Nilai::class, 'id', 'id_user');
     }
+    
     public function detail_siswa()
     {
         return $this->hasOne(Detail_siswa::class, 'id_siswa', 'id');
@@ -78,5 +77,14 @@ class Siswa extends Model
     public function kelas()
     {
         return $this->belongsTo(Kelas::class, 'id_kelas', 'id');
+    }
+
+    /**
+     * Tambahan: Relasi ke tabel pembayaran_spps 
+     * (Menghubungkan satu siswa ke banyak riwayat transaksi pembayaran SPP)
+     */
+public function pembayaranSpps()
+    {
+        return $this->hasMany(PembayaranSpp::class, 'siswa_id', 'id');
     }
 }

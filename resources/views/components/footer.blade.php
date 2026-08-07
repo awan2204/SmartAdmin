@@ -6,11 +6,8 @@
                     ©
                     <script>
                         document.write(new Date().getFullYear())
-                    </script>,
-                    made with <i class="fa fa-heart"></i> by
-                    <a href="https://polije.ac.id/en/" class="font-weight-bold" target="_blank">Politeknik Negeri
-                        Jember</a>
-                    for a better web.
+                    </script>
+                   
                 </div>
             </div>
 

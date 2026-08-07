@@ -5,12 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('assets/img/apple-icon.pn') }}g">
+    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('assets/img/apple-icon.png') }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/img/smart_scholl-only_icon.png') }}">
     <title>
-        {{ $title }}
+        <title>{{ $title ?? 'SmartSchool' }}</title>
     </title>
-
 
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.19.0/font/bootstrap-icons.css">
@@ -59,7 +58,6 @@
             max-width: 100vw;
             min-width: 100vw;
             overflow: hidden;
-            max-width: 900px;
         }
     </style>
 </head>
@@ -70,7 +68,7 @@
         id="sidenav-main" style="z-index: 1">
         @include('components.sidebar')
     </aside>
-    <main class="main-content" style="height: 100%; min-height: 100vh; display: flex;flex-direction: column">
+    <main class="main-content" style="height: 100%; min-height: 100vh; display: flex; flex-direction: column; overflow-y: auto;">
         @include('components.navbar')
         <div class="container-fluid my-4">
             @yield('content')
@@ -80,6 +78,10 @@
     </main>
     @include('components.setting')
     @include('components.js')
+
+    <!-- Pastikan script JS Bootstrap & jQuery tambahan terpasang untuk memicu Modal -->
+    <script src="{{ asset('adminlte/plugins/jquery/jquery.min.js') }}"></script>
+    <script src="{{ asset('adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 </body>
 
 </html>

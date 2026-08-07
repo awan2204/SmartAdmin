@@ -184,12 +184,80 @@
                 </div>
             </li>
 
-            <li class="mb-1" style="">
-                <a class="btn rounded text-white font-weight-bold 'bg-gradient-primary ' : '' }}"
-                    style="text-transform: none; width: 100%;display: flex; align-items: center; column-gap:10px"
-                    href="javascript:void(0);" onclick="konfirmasiBukaLink()"> <span
-                        class="material-symbols-outlined">task</span> Elearning</a>
+           <li class="mb-1" style="width: 100%">
+    <a class="btn rounded text-white font-weight-bold {{ Request::is('elearning*') ? 'bg-gradient-primary' : '' }}" 
+       style="text-transform: none; width: 100%; display: flex; align-items: center; column-gap: 10px;" 
+       href="/elearning">
+        <span class="material-symbols-outlined">task</span>
+        Elearning
+    </a>
+        </li>
+
+<!-- ================= MENU KEUANGAN (COMPLETE FIX) ================= -->
+<li class="nav-item">
+    <a href="javascript:void(0)" id="btnKeuanganToggle" class="nav-link d-flex align-items-center justify-content-between" style="color: #ffffff !important; cursor: pointer;">
+        <div>
+            <i class="fas fa-wallet mr-2" style="color: #ffffff !important;"></i>
+            <span style="color: #ffffff !important; font-weight: 500;">Keuangan</span>
+        </div>
+        <i class="fas fa-chevron-down" id="iconKeuanganArrow" style="font-size: 0.8rem; color: #ffffff !important; transition: transform 0.3s;"></i>
+    </a>
+    
+    <div id="subKeuanganWrapper" style="display: none; padding-left: 1.5rem; background: rgba(0,0,0,0.15);">
+        <ul class="nav flex-column pt-2 pb-2">
+            <!-- Link 1: Pembayaran SPP -->
+            <li class="nav-item mb-2">
+                <a href="{{ route('keuangan.spp') }}" style="color: rgba(255,255,255,0.9) !important; text-decoration: none; font-size: 0.9rem; display: block;">
+                    <i class="far fa-circle mr-2" style="font-size: 0.6rem;"></i> Pembayaran SPP
+                </a>
             </li>
+
+            <!-- Link 2: Daftar Ulang Siswa -->
+            <li class="nav-item mb-2">
+                <a href="{{ route('keuangan.daftar-ulang') }}" style="color: rgba(255,255,255,0.9) !important; text-decoration: none; font-size: 0.9rem; display: block;">
+                    <i class="far fa-circle mr-2" style="font-size: 0.6rem;"></i> Daftar Ulang Siswa
+                </a>
+            </li>
+
+            <!-- Link 3: Pendapatan Per Kelas -->
+            <li class="nav-item">
+                <a href="{{ route('keuangan.pendapatan') }}" style="color: rgba(255,255,255,0.9) !important; text-decoration: none; font-size: 0.9rem; display: block;">
+                    <i class="far fa-circle mr-2" style="font-size: 0.6rem;"></i> Pendapatan Per Kelas
+                </a>
+            </li>
+        </ul>
+    </div>
+</li>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var btn = document.getElementById("btnKeuanganToggle");
+        var box = document.getElementById("subKeuanganWrapper");
+        var arrow = document.getElementById("iconKeuanganArrow");
+
+        // Otomatis buka dropdown jika halaman yang aktif berada di bawah grup Keuangan
+        if (window.location.href.includes('/keuangan/')) {
+            if(box) box.style.display = "block";
+            if(arrow) arrow.style.transform = "rotate(180deg)";
+        }
+
+        if(btn && box) {
+            btn.addEventListener("click", function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (box.style.display === "none" || box.style.display === "") {
+                    box.style.display = "block";
+                    if(arrow) arrow.style.transform = "rotate(180deg)";
+                } else {
+                    box.style.display = "none";
+                    if(arrow) arrow.style.transform = "rotate(0deg)";
+                }
+            });
+        }
+    });
+</script>
+<!-- =================================================================== -->
+<!-- =================================================================== -->
         @elseif (auth()->user()->hasRole('wakasek'))
             <li class="mb-1">
                 <button class="btn align-items-center rounded collapsed text-white font-weight-bold"
@@ -246,13 +314,7 @@
                 </a>
             </li>
 
-            <li class="mb-1" style="">
-                <a class="btn rounded text-white font-weight-bold 'bg-gradient-primary ' : '' }}"
-                    style="text-transform: none; width: 100%;display: flex; align-items: center; column-gap:10px"
-                    href="javascript:void(0);" onclick="konfirmasiBukaLink()"> <span
-                        class="material-symbols-outlined">task</span> Elearning</a>
-
-            </li>
+         
         @elseif (auth()->user()->hasRole('siswa'))
             <li class="mb-1" style="">
                 <a class="btn rounded text-white font-weight-bold {{ Request::is('akademik/jadwal-siswa*') ? 'bg-gradient-primary ' : '' }}"
@@ -273,21 +335,10 @@
                 </a>
             </li>
 
-            <li class="mb-1" style="">
-                <a class="btn rounded text-white font-weight-bold 'bg-gradient-primary ' : '' }}"
-                    style="text-transform: none; width: 100%;display: flex; align-items: center; column-gap:10px"
-                    href="javascript:void(0);" onclick="konfirmasiBukaLink()"> <span
-                        class="material-symbols-outlined">task</span> Elearning</a>
-            </li>
+           
         @endif
     </ul>
-</div>
-<script>
-    function konfirmasiBukaLink() {
-        var konfirmasi = confirm("Apakah Anda yakin ingin membuka Elearning?");
 
-        if (konfirmasi) {
-            window.open("http://localhost/moodle/login/index.php", "_blank");
-        }
-    }
-</script>
+    
+</div>
+
