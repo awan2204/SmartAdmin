@@ -5,15 +5,28 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SppPayment extends Model
+class PembayaranSpp extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    // SAMAKAN DENGAN NAMA TABEL DB
+    protected $table = 'spp_payments'; 
 
-    /**
-     * Relasi ke Model Siswa
-     */
+    protected $fillable = [
+        'siswa_id',
+        'tahun_ajaran',
+        'bulan',
+        'nominal',
+        'tanggal_bayar',
+        'metode_pembayaran',
+        'is_kjp',
+        'status',
+    ];
+
+    protected $casts = [
+        'is_kjp' => 'boolean',
+    ];
+
     public function siswa()
     {
         return $this->belongsTo(Siswa::class, 'siswa_id');

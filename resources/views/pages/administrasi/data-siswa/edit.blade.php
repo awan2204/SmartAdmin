@@ -1,54 +1,12 @@
 @extends('components.main')
 @section('breadcrumbs')
     <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
-        <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="/data-siswa">Siswa</a>
-        </li>
+        <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="/administrasi/siswa">Siswa</a></li>
         <li class="breadcrumb-item text-sm text-dark active" aria-current="page">Edit</li>
     </ol>
     <h6 class="font-weight-bolder mb-0">Data Siswa</h6>
 @endsection
-@section('script')
-    <script>
-        function hanyaAngka(evt) {
-            var charCode = (evt.which) ? evt.which : event.keyCode
-            if (charCode > 31 && (charCode < 48 || charCode > 57))
 
-                return false;
-            return true;
-        }
-
-        function showPreviewposter(event) {
-            if (event.target.files.length > 0) {
-                var src = URL.createObjectURL(event.target.files[0]);
-                var preview = document.getElementById("file-preview-poster");
-                preview.src = src;
-                preview.style.display = "block";
-            }
-        }
-        // Menampilkan atau menyembunyikan inputan "Asal Sekolah" berdasarkan status
-        document.addEventListener('DOMContentLoaded', function() {
-            const statusSelect = document.getElementById('status');
-            const asalSekolah = document.getElementById('asal_sekolah');
-
-            // Fungsi untuk mengatur tampilan asalSekolah saat halaman dimuat
-            function setAsalSekolahVisibility() {
-                if (statusSelect.value === 'pindahan') {
-                    asalSekolah.style.display = 'block';
-                } else {
-                    asalSekolah.style.display = 'none';
-                }
-            }
-
-            // Panggil fungsi saat halaman dimuat
-            setAsalSekolahVisibility();
-
-            // Tambahkan event listener untuk mendeteksi perubahan status
-            statusSelect.addEventListener('change', function() {
-                setAsalSekolahVisibility();
-            });
-        });
-    </script>
-@endsection
 @section('content')
     <div class="row">
         <div class="col-12">
@@ -59,213 +17,108 @@
                     </div>
                 </div>
                 <div class="card-body px-0 pb-2">
-                    <form action="/administrasi/siswa-update/{{ $siswa->id }}" class="row g-3 py-1 px-4" method="post"
-                        enctype="multipart/form-data">
-                        @method('PUT')
+                    {{-- Form ini dijamin langsung submit dan pindah halaman --}}
+                    <form action="{{ url('/administrasi/siswa-update/' . $siswa->id) }}" class="row g-3 py-1 px-4" method="POST" enctype="multipart/form-data">
                         @csrf
+                        @method('PUT')
+                        
                         <div class="col-md-6">
-                            <label for="inputEmail4" class="form-label">NIS</label>
-                            <div class="input-group">
-                                <label class="form-label">Masukkan NIS</label>
-                                <input type="text" onkeypress="return hanyaAngka(event)" name="nis"
-                                    class="form-control rounded-3" required value="{{ $siswa->nis }}"
-                                    {{ $errors->has('nis') ? 'autofocus="true"' : '' }}>
-                            </div>
-                            @if ($errors->has('nis'))
-                                <span class="text-danger">{{ $errors->first('nis') }}</span>
-                            @endif
+                            <label class="form-label">NIS</label>
+                            <input type="text" name="nis" class="form-control rounded-3" required value="{{ old('nis', $siswa->nis) }}">
                         </div>
                         <div class="col-md-6">
-                            <label for="inputEmail4" class="form-label">NISN</label>
-                            <div class="input-group">
-                                <label class="form-label">Masukkan NISN</label>
-                                <input type="text" onkeypress="return hanyaAngka(event)" name="nisn"
-                                    class="form-control rounded-3" required value="{{ $siswa->nisn }}"
-                                    {{ $errors->has('nisn') ? 'autofocus="true"' : '' }}>
-                            </div>
-                            @if ($errors->has('nisn'))
-                                <span class="text-danger">{{ $errors->first('nisn') }}</span>
-                            @endif
+                            <label class="form-label">NISN</label>
+                            <input type="text" name="nisn" class="form-control rounded-3" required value="{{ old('nisn', $siswa->nisn) }}">
                         </div>
                         <div class="col-md-6">
-                            <label for="inputEmail4" class="form-label">NIK</label>
-                            <div class="input-group">
-                                <label class="form-label">Masukkan NIK</label>
-                                <input type="text" onkeypress="return hanyaAngka(event)" name="nik"
-                                    class="form-control rounded-3" required value="{{ $siswa->nik }}"
-                                    {{ $errors->has('nik') ? 'autofocus="true"' : '' }}>
-                            </div>
-                            @if ($errors->has('nik'))
-                                <span class="text-danger">{{ $errors->first('nik') }}</span>
-                            @endif
+                            <label class="form-label">NIK</label>
+                            <input type="text" name="nik" class="form-control rounded-3" required value="{{ old('nik', $siswa->nik) }}">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Nama Lengkap</label>
-                            <div class="input-group">
-                                <label class="form-label">Masukkan nama lengkap</label>
-                                <input type="text" name="nama" class="form-control rounded-3" id="inputEmail4"
-                                    required value="{{ $siswa->nama }}"
-                                    {{ $errors->has('nama') ? 'autofocus="true"' : '' }}>
-                            </div>
+                            <input type="text" name="nama" class="form-control rounded-3" required value="{{ old('nama', $siswa->nama) }}">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Tempat Lahir</label>
-                            <div class="input-group">
-                                <label class="form-label">Masukkan tempat lahir</label>
-                                <input type="text" name="tempat_lahir" class="form-control rounded-3" id="inputEmail4"
-                                    required value="{{ $siswa->tempat_lahir }}"
-                                    {{ $errors->has('tempat_lahir') ? 'autofocus="true"' : '' }}>
-                            </div>
+                            <input type="text" name="tempat_lahir" class="form-control rounded-3" required value="{{ old('tempat_lahir', $siswa->tempat_lahir) }}">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Tanggal Lahir</label>
-                            <div class="input-group">
-                                <input type="date" name="tanggal_lahir" class="form-control rounded-3" id="inputEmail4"
-                                    required value="{{ $siswa->tanggal_lahir }}"
-                                    {{ $errors->has('tanggal_lahir') ? 'autofocus="true"' : '' }}>
-                            </div>
+                            <input type="date" name="tanggal_lahir" class="form-control rounded-3" required value="{{ old('tanggal_lahir', $siswa->tanggal_lahir) }}">
                         </div>
                         <div class="col-md-6">
-                            <label for="inputPassword4" class="form-label">Jenis Kelamin</label>
-                            <br>
+                            <label class="form-label">Jenis Kelamin</label><br>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="jenis_kelamin" id="Laki-laki"
-                                    value="laki-laki" {{ $siswa->jenis_kelamin == 'laki-laki' ? 'checked' : '' }}>
-
-                                <label class="form-check-label" for="flexRadioDefault1">
-                                    Laki-laki
-                                </label>
+                                <input class="form-check-input" type="radio" name="jenis_kelamin" value="laki-laki" {{ $siswa->jenis_kelamin == 'laki-laki' ? 'checked' : '' }}>
+                                <label class="form-check-label">Laki-laki</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="jenis_kelamin" id="Laki-laki"
-                                    value="perempuan" {{ $siswa->jenis_kelamin == 'perempuan' ? 'checked' : '' }}>
-                                <label class="form-check-label" for="flexRadioDefault2">
-                                    Perempuan
-                                </label>
+                                <input class="form-check-input" type="radio" name="jenis_kelamin" value="perempuan" {{ $siswa->jenis_kelamin == 'perempuan' ? 'checked' : '' }}>
+                                <label class="form-check-label">Perempuan</label>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Agama</label>
-                            <div class="input-group">
-                                <label class="form-label">Masukkan agama</label>
-                                <div class="input-group">
-                                    <select class="form-select rounded-3 form-control-lg text-sm"
-                                        aria-label="Default select example" name="agama">
-                                        <option selected disabled>-- Pilih Agama --</option>
-                                        @foreach (['islam', 'kristen', 'hindu', 'buddha', 'konghucu'] as $agama)
-                                            <option value="{{ $agama }}"
-                                                {{ $siswa->agama == $agama ? 'selected' : '' }}>{{ ucfirst($agama) }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
+                            <select class="form-select" name="agama">
+                                @foreach (['islam', 'kristen', 'hindu', 'buddha', 'konghucu'] as $agama)
+                                    <option value="{{ $agama }}" {{ $siswa->agama == $agama ? 'selected' : '' }}>{{ ucfirst($agama) }}</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Nama Ayah</label>
-                            <div class="input-group">
-                                <label class="form-label">Masukkan Ayah</label>
-                                <input type="text" name="nama_ayah" class="form-control rounded-3" id="inputEmail4"
-                                    required value="{{ $siswa->nama_ayah }}"
-                                    {{ $errors->has('nama_ayah') ? 'autofocus="true"' : '' }}>
-                            </div>
+                            <input type="text" name="nama_ayah" class="form-control rounded-3" required value="{{ old('nama_ayah', $siswa->nama_ayah) }}">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Nama Ibu</label>
-                            <div class="input-group">
-                                <label class="form-label">Masukkan Ibu</label>
-                                <input type="text" name="nama_ibu" class="form-control rounded-3" id="inputEmail4"
-                                    required value="{{ $siswa->nama_ibu }}"
-                                    {{ $errors->has('nama_ibu') ? 'autofocus="true"' : '' }}>
-                            </div>
+                            <input type="text" name="nama_ibu" class="form-control rounded-3" required value="{{ old('nama_ibu', $siswa->nama_ibu) }}">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Masukkan Wali</label>
-                            <div class="input-group">
-                                <input type="text" name="nama_wali" class="form-control rounded-3" id="inputEmail4"
-                                    required value="{{ $siswa->nama_wali }}"
-                                    {{ $errors->has('nama_wali') ? 'autofocus="true"' : '' }}>
-                            </div>
+                            <input type="text" name="nama_wali" class="form-control rounded-3" required value="{{ old('nama_wali', $siswa->nama_wali) }}">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Kelas</label>
-                            <div class="input-group">
-                                <label class="form-label">Pilih Kelas</label>
-                                <div class="input-group">
-                                    <select class="form-select rounded-3 form-control-lg text-sm"
-                                        aria-label="Default select example" name="kelas" id="kelas">
-                                        <option value="">-- Pilih Kelas --</option>
-                                        @foreach ($kelas_list as $kelas)
-                                            <option value="{{ $kelas->id }}"
-                                                {{ $siswa->id_kelas == $kelas->id ? 'selected' : '' }}>
-                                                {{ $kelas->nama_kelas }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
+                            <select class="form-select" name="kelas">
+                                @foreach ($kelas_list as $kelas)
+                                    <option value="{{ $kelas->id }}" {{ $siswa->id_kelas == $kelas->id ? 'selected' : '' }}>{{ $kelas->nama_kelas }}</option>
+                                @endforeach
+                            </select>
                         </div>
+
+                        {{-- TIPE KJP --}}
+                        <div class="col-md-6">
+                            <label class="form-label">Tipe Siswa (KJP)</label>
+                            <select class="form-select" name="is_kjp" required>
+                                <option value="0" {{ (int)$siswa->is_kjp === 0 ? 'selected' : '' }}>Non KJP</option>
+                                <option value="1" {{ (int)$siswa->is_kjp === 1 ? 'selected' : '' }}>Penerima KJP</option>
+                            </select>
+                        </div>
+
                         <div class="col-md-6">
                             <label class="form-label">No Telepon</label>
-                            <div class="input-group">
-                                <label class="form-label">Masukkan no telepon</label>
-                                <input type="text" maxlength="13" onkeypress="return hanyaAngka(event)"
-                                    name="no_telp" class="form-control rounded-3" id="inputEmail4" required
-                                    value="{{ $siswa->no_telp }}"
-                                    {{ $errors->has('no_telp') ? 'autofocus="true"' : '' }}>
-                            </div>
-                            @if ($errors->has('no_telp'))
-                                <span class="text-danger">{{ $errors->first('no_telp') }}</span>
-                            @endif
+                            <input type="text" name="no_telp" class="form-control rounded-3" required value="{{ old('no_telp', $siswa->no_telp) }}">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Status</label>
-                            <div class="input-group">
-                                <label class="form-label">Masukkan Status</label>
-                                <div class="input-group">
-                                    <select class="form-select rounded-3 form-control-lg text-sm"
-                                        aria-label="Default select example" name="status" id="status">
-                                        <option value="" selected>-- Pilih Status --</option>
-                                        @foreach ($status_siswa as $status)
-                                            <option value="{{ $status }}"
-                                                {{ $siswa->status == $status ? 'Selected' : '' }}>{{ ucfirst($status) }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6" id="asal_sekolah"
-                            style="{{ $siswa->status == 'pindahan' ? 'display: block;' : 'display: none;' }}">
-                            <label class="form-label">Asal Sekolah</label>
-                            <input type="text" class="form-control rounded-3 form-control-lg text-sm"
-                                name="asal_sekolah" value="{{ $siswa->sekolah }}">
+                            <select class="form-select" name="status">
+                                @foreach ($status_siswa as $status)
+                                    <option value="{{ $status }}" {{ $siswa->status == $status ? 'selected' : '' }}>{{ ucfirst($status) }}</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="col-md-6">
-                            <label for="formFile" class="form-label">Foto</label>
-                            <input class="form-control rounded-3 text-sm" name="foto" type="file"
-                                id="file-input-poster" accept="image/*" onchange="showPreviewposter(event);"
-                                value="{{ $siswa->foto }}" {{ $errors->has('foto') ? 'autofocus="true"' : '' }}>
-                            <img src=" {{ asset('storage/murid/img/' . $siswa->foto) }}" id="file-preview-poster"
-                                alt="..." class="img-thumbnail mt-2" width="50%">
+                            <label class="form-label">Foto</label>
+                            <input class="form-control" name="foto" type="file">
                         </div>
                         <div class="col-md-6">
-                            <label for="inputPassword4" class="form-label">Alamat</label>
-                            <div class="input-group">
-                                <textarea name="alamat" class="form-control rounded-3" style="height: 100px" required>{{ $siswa->alamat }}</textarea>
-                            </div>
+                            <label class="form-label">Alamat</label>
+                            <textarea name="alamat" class="form-control rounded-3" required>{{ old('alamat', $siswa->alamat) }}</textarea>
                         </div>
 
                         <div class="text-right card-footer">
-                            <button type="submit" onclick="return confirm('Apakah anda yakin data sudah benar?')"
-                                class="btn btn-primary ml-5 text-sm rounded-3" style="float:right; ">
-                                <i class="fa fa-save"></i>
-                                Simpan
-                            </button>
-                            <a href="/administrasi/siswa" type="button" class="btn btn-danger text-sm rounded-3"
-                                style="float: right;margin-right:10px"><i class="fa fa-arrow-left"></i>
-                                Kembali
-                            </a>
+                            <button type="submit" class="btn btn-primary" style="float:right;">Simpan</button>
+                            <a href="/administrasi/siswa" class="btn btn-danger" style="float: right; margin-right:10px">Kembali</a>
                         </div>
                     </form>
                 </div>
@@ -273,4 +126,3 @@
         </div>
     </div>
 @endsection
-{{-- footer --}}

@@ -4,86 +4,46 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
 class Siswa extends Model
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory;
+
     protected $table = 'siswas';
 
     protected $fillable = [
+        'nisn', 
         'nis',
-        'nisn',
         'nik',
-        'nama',
-        'no_telp',
+        'nama', 
         'nama_ayah',
         'nama_ibu',
         'nama_wali',
-        'foto',
+        'jenis_kelamin',
+        'agama',
+        'no_telp',
         'status',
+        'sekolah',
         'tempat_lahir',
         'tanggal_lahir',
         'alamat',
-        'jenis_kelamin',
-        'agama',
+        'foto',
         'id_kelas',
         'id_angkatan',
-        'tanggal_keluar',
         'id_user',
-        'asal_sekolah'
+        'is_kjp'
     ];
 
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'id_user', 'id');
-    }
-
-    public function data_angkatan()
-    {
-        return $this->belongsTo(Data_angkatan::class, 'id_angkatan', 'id');
-    }
-
-    public function nilai()
-    {
-        return $this->hasMany(Nilai::class, 'id', 'id_user');
-    }
-    
-    public function detail_siswa()
-    {
-        return $this->hasOne(Detail_siswa::class, 'id_siswa', 'id');
-    }
-
-    public function scopeFilter($query, array $filters)
-    {
-        $status = $filters['status'] ?? null;
-        $kelas = $filters['kelas'] ?? null;
-
-        if ($status) {
-            $query->where('status', $status);
-        }
-
-        if ($kelas) {
-            $query->where('id_kelas', $kelas);
-        }
-    }
-
-    public function absensi()
-    {
-        return $this->hasMany(Absensi::class, 'id_siswa');
-    }
+    protected $casts = [
+        'is_kjp' => 'integer',
+    ];
 
     public function kelas()
     {
-        return $this->belongsTo(Kelas::class, 'id_kelas', 'id');
+        return $this->belongsTo(Kelas::class, 'id_kelas');
     }
 
-    /**
-     * Tambahan: Relasi ke tabel pembayaran_spps 
-     * (Menghubungkan satu siswa ke banyak riwayat transaksi pembayaran SPP)
-     */
-public function pembayaranSpps()
+    public function pembayaranspps()
     {
         return $this->hasMany(PembayaranSpp::class, 'siswa_id', 'id');
     }

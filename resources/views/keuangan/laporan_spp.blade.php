@@ -6,6 +6,7 @@
         <div class="col-12">
             <div class="card my-4">
                 <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <!-- DIPERBAIKI: Menggunakan d-flex justify-content-between align-items-center agar tombol turun dan rapi sejajar -->
                     <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center px-4">
                         <h6 class="text-white text-capitalize m-0">Laporan & Rekapitulasi SPP Bulanan</h6>
                         <!-- Tombol Kembali ke Menu Pembayaran SPP -->
@@ -47,9 +48,10 @@
                                     <th class="text-center">#</th>
                                     <th>NISN</th>
                                     <th>Nama Siswa</th>
+                                    <th>Tipe KJP</th>
                                     <th>Kelas</th>
                                     <th>Total Dibayar</th>
-                                    <th>Rincian Status Per Bulan (Target: Rp 250.000/bln)</th>
+                                    <th>Rincian Status Per Bulan (Target: Rp 200.000/bln)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -60,14 +62,32 @@
                                     <tr>
                                         <td class="align-middle text-center text-xs">{{ $index + 1 }}</td>
                                         <td class="align-middle text-xs">{{ $siswa->nisn }}</td>
-                                        <td class="align-middle text-xs font-weight-bold">{{ $siswa->nama }}</td>
+                                        
+                                        <!-- Nama Siswa -->
+                                        <td class="align-middle text-xs font-weight-bold text-dark">
+                                            {{ $siswa->nama }}
+                                        </td>
+
+                                        <!-- Kolom Tipe KJP -->
+                                        <td class="align-middle text-xs">
+                                            @if(isset($siswa->is_kjp) && $siswa->is_kjp == 1)
+                                                <span class="badge badge-sm px-2 py-1" style="background-color: #008080; color: #fff; font-size: 9px;">
+                                                    <i class="fas fa-id-card mr-1"></i> KJP
+                                                </span>
+                                            @else
+                                                <span class="badge badge-sm px-2 py-1" style="background-color: #6c757d; color: #fff; font-size: 9px;">
+                                                    NON KJP
+                                                </span>
+                                            @endif
+                                        </td>
+
                                         <td class="align-middle text-xs">{{ $siswa->kelas->nama_kelas ?? 'Belum Ada' }}</td>
                                         
                                         <td class="align-middle text-xs font-weight-bold">
                                             Rp {{ number_format($totalDibayarSemua, 0, ',', '.') }}
                                         </td>
 
-                                        {{-- Rincian Status Per Bulan (Otomatis Melimpah) --}}
+                                        {{-- Rincian Status Per Bulan --}}
                                         <td class="align-middle text-xs">
                                             <div class="d-flex flex-wrap gap-1" style="max-width: 480px;">
                                                 @foreach($listBulan as $bulan)
@@ -76,7 +96,7 @@
                                                     @endphp
 
                                                     @if($infoBulan['status'] == 'LUNAS')
-                                                        <span class="badge badge-sm bg-gradient-success m-1" title="{{ $bulan }}: Lunas (Rp 250.000)">
+                                                        <span class="badge badge-sm bg-gradient-success m-1" title="{{ $bulan }}: Lunas (Rp 200.000)">
                                                             {{ $bulan }} (Lunas)
                                                         </span>
                                                     @elseif($infoBulan['status'] == 'CICILAN')
@@ -94,7 +114,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="text-center py-4 text-secondary">Data siswa tidak ditemukan.</td>
+                                        <td colspan="7" class="text-center py-4 text-secondary">Data siswa tidak ditemukan.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -111,7 +131,6 @@
     history.pushState(null, null, location.href);
     window.onpopstate = function () {
         history.go(1);
-        // Atau jika ingin langsung dilempar otomatis ke menu utama pembayaran SPP:
         window.location.href = "{{ route('keuangan.spp') }}";
     };
 </script>

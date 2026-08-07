@@ -9,6 +9,18 @@
 @endsection
 
 @section('content')
+    <style>
+        .badge-kjp {
+            background-color: #008080 !important;
+            color: #fff !important;
+            font-weight: bold;
+        }
+        .badge-non-kjp {
+            background-color: #6c757d !important;
+            color: #fff !important;
+        }
+    </style>
+
     <div class="row">
         <div class="col-12">
             <div class="card my-4">
@@ -61,6 +73,7 @@
             <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">NIS</th>
             <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Nama Lengkap</th>
             <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Kelas</th>
+            <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Tipe KJP</th>
             <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Status</th>
             <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Aksi</th>
         </tr>
@@ -72,6 +85,16 @@
                 <td class="text-center">{{ $siswa->nis }}</td>
                 <td class="text-center">{{ $siswa->nama }}</td>
                 <td class="text-center">{{ $siswa->kelas->nama_kelas ?? '-' }}</td>
+                
+                {{-- DIPERBAIKI: Pengecekan is_kjp == 1 agar badge KJP/Non KJP akurat --}}
+    <td class="text-center">
+    @if(isset($siswa->is_kjp) && $siswa->is_kjp == 1)
+        <span class="badge" style="background-color: #008080; color: #fff;">Penerima KJP</span>
+    @else
+        <span class="badge" style="background-color: #6c757d; color: #fff;">NON KJP</span>
+    @endif
+</td>
+
                 <td class="text-center">{{ $siswa->status }}</td>
                 <td class="text-center d-flex justify-content-center gap-2">
                     {{-- Detail Button --}}
@@ -342,7 +365,6 @@
         let el = $(element);
         let id = el.data('id-siswa');
 
-        // Mengatur action form secara dinamis berdasarkan ID siswa
         $('#siswaForm').attr('action', '/administrasi/siswa-keluar/' + id);
 
         $('#leave-nama-siswa').text(el.data('nama-siswa'));

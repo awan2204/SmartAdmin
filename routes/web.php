@@ -417,4 +417,11 @@ Route::prefix('keuangan')->name('keuangan.')->group(function () {
     Route::post('/spp/store', [KeuanganController::class, 'sppStore'])->name('spp.store');
 }); 
 
-
+Route::prefix('keuangan')->name('keuangan.')->group(function () {
+    Route::get('/spp', [SppController::class, 'index'])->name('spp');
+    Route::post('/spp/store', [SppController::class, 'store'])->name('spp.store');
+    Route::put('/spp/update/{id}', [SppController::class, 'update'])->name('spp.update');
+    Route::delete('/spp/delete/{id}', [SppController::class, 'destroy'])->name('spp.destroy');
+    Route::get('/laporan-spp', [SppController::class, 'laporanSpp'])->name('laporan-spp');
+});
+Route::put('/administrasi/siswa-update/{siswa}', [App\Http\Controllers\SiswaController::class, 'update'])->name('siswa.update');
