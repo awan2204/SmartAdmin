@@ -425,3 +425,4 @@ Route::prefix('keuangan')->name('keuangan.')->group(function () {
     Route::get('/laporan-spp', [SppController::class, 'laporanSpp'])->name('laporan-spp');
 });
 Route::put('/administrasi/siswa-update/{siswa}', [App\Http\Controllers\SiswaController::class, 'update'])->name('siswa.update');
+Route::post('/keuangan/spp/debet-kjp', [App\Http\Controllers\SppController::class, 'debetKjp'])->name('keuangan.spp.debet-kjp');

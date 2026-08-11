@@ -169,7 +169,6 @@ class SiswaController extends Controller
             'foto'          => $filegambar,
             'alamat'        => $request->alamat,
             'id_kelas'      => $request->kelas,
-            'id_angkatan'   => Data_angkatan::firstWhere('tahun_masuk', now()->year)->id ?? 1,
             'id_user'       => $user_new,
         ])->id;
 

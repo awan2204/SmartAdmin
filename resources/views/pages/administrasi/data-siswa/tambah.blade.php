@@ -12,7 +12,6 @@
         function hanyaAngka(evt) {
             var charCode = (evt.which) ? evt.which : event.keyCode
             if (charCode > 31 && (charCode < 48 || charCode > 57))
-
                 return false;
             return true;
         }
@@ -30,7 +29,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             const statusSelect = document.getElementById('status');
             const asalSekolah = document.getElementById('asal_sekolah');
-            const tglMasuk = document.getElementById('tgl_masuk');
 
             if (statusSelect.value === 'pindahan') {
                 asalSekolah.style.display = 'block';
@@ -59,23 +57,6 @@
                         enctype="multipart/form-data">
                         @csrf
 
-
-                        {{-- <div class="col-md-6">
-                            <label for="no_pendaftaran" class="form-label">Nomer Pendaftaran</label>
-
-                        <div class="col-md-6">
-                            <label for="no-pendaftar" class="form-label">Nomer Pendaftaran</label>
-
-                            <div class="input-group">
-                                <input type="text" onkeypress="return hanyaAngka(event)" name="no_pendaftar"
-                                    class="form-control rounded-3" id="no-pendaftar" required
-                                    value="{{ old('no_pendaftar') }}"
-                                    {{ $errors->has('no_pendaftar') ? 'autofocus="true"' : '' }}>
-                            </div>
-                            @if ($errors->has('no_pendaftar'))
-                                <span class="text-danger">{{ $errors->first('no_pendaftar') }}</span>
-                            @endif
-
                         <div class="col-md-6">
                             <label for="no-pendaftar" class="form-label">Nomer Pendaftaran</label>
                             <div class="input-group">
@@ -87,8 +68,6 @@
                             @if ($errors->has('no_pendaftar'))
                                 <span class="text-danger">{{ $errors->first('no_pendaftar') }}</span>
                             @endif
-                        </div>
-
                         </div>
 
                         <div class="col-md-6">
@@ -102,6 +81,7 @@
                                 <span class="text-danger">{{ $errors->first('nis') }}</span>
                             @endif
                         </div>
+
                         <div class="col-md-6">
                             <label for="nisn" class="form-label">NISN</label>
                             <div class="input-group">
@@ -113,6 +93,7 @@
                                 <span class="text-danger">{{ $errors->first('nisn') }}</span>
                             @endif
                         </div>
+
                         <div class="col-md-6">
                             <label for="nik" class="form-label">NIK</label>
                             <div class="input-group">
@@ -124,6 +105,7 @@
                                 <span class="text-danger">{{ $errors->first('nik') }}</span>
                             @endif
                         </div>
+
                         <div class="col-md-6">
                             <label class="form-label" for="nama">Nama Lengkap</label>
                             <div class="input-group">
@@ -131,6 +113,7 @@
                                     value="{{ old('nama') }}" {{ $errors->has('nama') ? 'autofocus="true"' : '' }}>
                             </div>
                         </div>
+
                         <div class="col-md-3">
                             <label class="form-label" for="tempat-lahir">Tempat Lahir</label>
                             <div class="input-group">
@@ -139,6 +122,7 @@
                                     {{ $errors->has('tempat_lahir') ? 'autofocus="true"' : '' }}>
                             </div>
                         </div>
+
                         <div class="col-md-3">
                             <label class="form-label" for="tanggal-lahir">Tanggal Lahir</label>
                             <div class="input-group">
@@ -147,6 +131,7 @@
                                     {{ $errors->has('tanggal_lahir') ? 'autofocus="true"' : '' }}>
                             </div>
                         </div>
+
                         <div class="col-md-6">
                             <label for="jenis-kelamin" class="form-label">Jenis Kelamin</label>
                             <br>
@@ -154,29 +139,29 @@
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="radio" name="jenis_kelamin"
                                         id="{{ $gender }}" value="{{ $gender }}"
-                                        @if (old('jenis_kelamin') == $gender) checked @endif id="jenis-kelamin">
+                                        @if (old('jenis_kelamin') == $gender) checked @endif>
                                     <label class="form-check-label" for="{{ $gender }}">
                                         {{ ucfirst($gender) }}
                                     </label>
                                 </div>
                             @endforeach
                         </div>
+
                         <div class="col-md-6">
                             <label class="form-label" for="agama">Agama</label>
                             <div class="input-group">
-                                <div class="input-group">
-                                    <select class="form-select rounded-3 form-control-lg text-sm"
-                                        aria-label="Default select example" name="agama" required id="agama">
-                                        <option selected>-- Pilih Agama --</option>
-                                        @foreach ($agamas as $agama)
-                                            <option value="{{ $agama }}"
-                                                @if (old('agama') == $agama) selected @endif>
-                                                {{ ucfirst($agama) }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                                <select class="form-select rounded-3 form-control-lg text-sm"
+                                    aria-label="Default select example" name="agama" required id="agama">
+                                    <option selected value="">-- Pilih Agama --</option>
+                                    @foreach ($agamas as $agama)
+                                        <option value="{{ $agama }}"
+                                            @if (old('agama') == $agama) selected @endif>
+                                            {{ ucfirst($agama) }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
+
                         <div class="col-md-6">
                             <label class="form-label" for="nama-ayah">Nama Ayah</label>
                             <div class="input-group">
@@ -185,6 +170,7 @@
                                     {{ $errors->has('nama_ayah') ? 'autofocus="true"' : '' }}>
                             </div>
                         </div>
+
                         <div class="col-md-6">
                             <label class="form-label" for="nama-ibu">Nama Ibu</label>
                             <div class="input-group">
@@ -193,36 +179,32 @@
                                     {{ $errors->has('nama_ibu') ? 'autofocus="true"' : '' }}>
                             </div>
                         </div>
+
                         <div class="col-md-6">
                             <label class="form-label" for="nama-wali">Nama Wali</label>
                             <div class="input-group">
                                 <input type="text" name="nama_wali" class="form-control rounded-3" id="nama-wali"
-
-
-                                    value="{{ old('nama_wali') }}"
-
                                     required value="{{ old('nama_wali') }}"
-
                                     {{ $errors->has('nama_wali') ? 'autofocus="true"' : '' }}>
                             </div>
                         </div>
+
                         <div class="col-md-6">
                             <label class="form-label" for="kelas">Kelas</label>
                             <div class="input-group">
-                                <div class="input-group">
-                                    <select class="form-select rounded-3 form-control-lg text-sm"
-                                        aria-label="Default select example" name="kelas" id="kelas" required>
-                                        <option value="">-- Pilih Kelas --</option>
-                                        @foreach ($list_kelas as $kelas)
-                                            <option value="{{ $kelas->id }}"
-                                                {{ old('kelas') == $kelas->id ? 'selected' : '' }}>
-                                                {{ $kelas->nama_kelas }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                                <select class="form-select rounded-3 form-control-lg text-sm"
+                                    aria-label="Default select example" name="kelas" id="kelas" required>
+                                    <option value="">-- Pilih Kelas --</option>
+                                    @foreach ($list_kelas as $kelas)
+                                        <option value="{{ $kelas->id }}"
+                                            {{ old('kelas') == $kelas->id ? 'selected' : '' }}>
+                                            {{ $kelas->nama_kelas }}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
+
                         <div class="col-md-6">
                             <label class="form-label" for="no-telp">No Telepon</label>
                             <div class="input-group">
@@ -234,48 +216,44 @@
                                 <span class="text-danger">{{ $errors->first('no_telp') }}</span>
                             @endif
                         </div>
+
                         <div class="col-md-6">
                             <label class="form-label" for="status">Status</label>
                             <div class="input-group">
-                                <div class="input-group">
-                                    <select class="form-select rounded-3 form-control-lg text-sm"
-                                        aria-label="Default select example" name="status" id="status" required>
-                                        <option selected>-- Pilih Status --</option>
-                                        <option value="bukan pindahan" @if (old('status') == 'bukan pindahan' || request('status') == 'bukan pindahan' || (isset($_GET['status']) && $_GET['status'] == 'bukan pindahan')) selected @endif>Baru
-                                        </option>
-                                        <option value="pindahan" @if (old('status') == 'pindahan' || request('status') == 'dipindah' || (isset($_GET['status']) && $_GET['status'] == 'pindahan')) selected @endif>Pindahan
-                                        </option>
-                                    </select>
-                                </div>
+                                <select class="form-select rounded-3 form-control-lg text-sm"
+                                    aria-label="Default select example" name="status" id="status" required>
+                                    <option selected value="">-- Pilih Status --</option>
+                                    <option value="bukan pindahan" @if (old('status') == 'bukan pindahan') selected @endif>Baru</option>
+                                    <option value="pindahan" @if (old('status') == 'pindahan') selected @endif>Pindahan</option>
+                                </select>
                             </div>
                         </div>
+
                         <div class="col-md-6" id="asal_sekolah" style="display: none;">
                             <label class="form-label" for="asal-sekolah">Asal Sekolah</label>
                             <input type="text" class="form-control rounded-3 form-control-lg text-sm"
                                 name="asal_sekolah" value="{{ old('asal_sekolah') }}" id="asal-sekolah">
                         </div>
+
                         <div class="col-md-6">
                             <label for="alamat" class="form-label">Alamat</label>
                             <div class="input-group">
                                 <textarea name="alamat" class="form-control rounded-3" style="height: 100px" required id="alamat">{{ old('alamat') }}</textarea>
                             </div>
                         </div>
+
                         <div class="col-md-6">
                             <label for="file-input-poster" class="form-label">Foto</label>
                             <input class="form-control rounded-3 text-sm" name="foto" type="file"
-
-                                id="file-input-poster" accept="image/*" onchange="showPreviewposter(event);"
-
                                 id="file-input-poster" accept="image/*" required onchange="showPreviewposter(event);"
-
                                 value="{{ old('foto') }}" {{ $errors->has('foto') ? 'autofocus' : '' }}>
                             <img src="{{ asset('assets' . '/img/thumbnail.png') }}" id="file-preview-poster"
                                 alt="..." class="img-thumbnail mt-2" width="50%">
-                            {{-- <p style="font-size: 13px">Ukuran direkomendasikan 1920x1080 pixel</p> --}}
                         </div>
+
                         <div class="col text-right">
                             <button type="submit" onclick="return confirm('Apakah anda yakin data sudah benar?')"
-                                class="btn btn-primary ml-5 text-sm rounded-3" style="float:right; ">
+                                class="btn btn-primary ml-5 text-sm rounded-3" style="float:right;">
                                 <i class="fa fa-right"></i>
                                 Simpan
                             </button>
@@ -290,4 +268,3 @@
         </div>
     </div>
 @endsection
-{{-- footer --}}

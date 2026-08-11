@@ -3,56 +3,84 @@
 namespace App\Http\Controllers;
 
 use App\Models\SppPayment;
-use App\Imports\SppImport;
+use App\Models\Siswa;
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
 
 class KeuanganController extends Controller
 {
-    /**
-     * Halaman Utama SPP
-     */
     public function spp()
     {
         $title = "Manajemen Pembayaran SPP";
-        
-        // PERBAIKAN: Tambahkan with('siswa') agar relasi data siswa terbawa dengan sempurna
         $sppPayments = SppPayment::with('siswa')->latest()->get();
-
         return view('keuangan.spp', compact('title', 'sppPayments'));
     }
 
-    /**
-     * Proses Import File Excel SPP
-     */
     public function sppImport(Request $request)
     {
         $request->validate([
-            'file_excel' => 'required|mimes:xlsx,xls',
+            'file' => 'required',
+            'tahun_ajaran' => 'required|string',
         ]);
 
-        $file = $request->file('file_excel');
-        
-        // Membuat unique hash berdasarkan nama file dan ukuran file
-        $fileHash = md5_file($file->getRealPath());
-        
-        // Cek ke session apakah hash file ini sudah pernah di-upload sebelumnya
-        if (session()->has('uploaded_file_' . $fileHash)) {
-            return redirect()->back()->with('error', 'File Excel ini sudah pernah di-import sebelumnya! Tidak boleh ada duplikasi file.');
+        $file = $request->file('file');
+        $path = $file->getRealPath();
+        $tahun = $request->input('tahun_ajaran');
+
+        if (($handle = fopen($path, "r")) !== FALSE) {
+            $rowNo = 0;
+            while (($row = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                $rowNo++;
+                if ($rowNo == 1) continue;
+                if (count($row) < 2) continue;
+
+                $nisn      = trim($row[0] ?? '');
+                $namaSiswa = trim($row[1] ?? '');
+                $kelas     = trim($row[2] ?? '7A');
+                $bulan     = trim($row[4] ?? 'JULI');
+                
+                $rawJumlah = $row[5] ?? 0;
+                $jumlah    = is_numeric($rawJumlah) ? (float)$rawJumlah : (float)preg_replace('/[^0-9]/', '', $rawJumlah);
+
+                if (empty($namaSiswa)) continue;
+
+                $siswa = Siswa::where('nama', $namaSiswa)->first();
+
+                if (!$siswa) {
+                    $siswa = Siswa::create([
+                        'nama'          => $namaSiswa,
+                        'nisn'          => !empty($nisn) ? $nisn : (string)rand(1000000001, 9999999999),
+                        'nis'           => (string)rand(100000, 999999),
+                        'nik'           => (string)rand(1000000000000000, 9999999999999999),
+                        'no_telp'       => '08' . rand(100000000, 999999999),
+                        'kelas'         => $kelas,
+                        'status'        => 'Aktif',
+                        'jenis_kelamin' => 'L',
+                        'alamat'        => '-',
+                        'nama_ayah'     => '-',
+                        'nama_ibu'      => '-',
+                    ]);
+                }
+
+                SppPayment::updateOrCreate(
+                    [
+                        'siswa_id'     => $siswa->id,
+                        'tahun_ajaran' => $tahun,
+                        'bulan'        => $bulan,
+                    ],
+                    [
+                        'tanggal_bayar'     => now(),
+                        'nominal'           => $jumlah > 0 ? $jumlah : 200000,
+                        'metode_pembayaran' => 'TRANSFER',
+                        'status'            => 'PAID',
+                    ]
+                );
+            }
+            fclose($handle);
         }
 
-        // Simpan tanda bahwa file ini sudah di-import
-        session()->put('uploaded_file_' . $fileHash, true);
-
-        // Jalankan proses import
-        Excel::import(new SppImport($request->input('tahun_ajaran')), $file);
-
-        return redirect()->back()->with('success', 'Data SPP Berhasil Diimport dan Dilindungi dari Dobel Data!');
+        return redirect()->back()->with('success', 'Data Berhasil Masuk!');
     }
 
-    /**
-     * Simpan Transaksi Baru Secara Manual
-     */
     public function sppStore(Request $request)
     {
         $request->validate([
@@ -65,7 +93,6 @@ class KeuanganController extends Controller
             'status'            => 'required|in:PAID,UNPAID',
         ]);
 
-        // Simpan atau update jika siswa membayar bulan & tahun ajaran yang sama
         SppPayment::updateOrCreate(
             [
                 'siswa_id'     => $request->siswa_id,
@@ -80,6 +107,6 @@ class KeuanganController extends Controller
             ]
         );
 
-        return redirect()->back()->with('success', 'Transaksi pembayaran SPP baru berhasil disimpan!');
+        return redirect()->back()->with('success', 'Transaksi berhasil disimpan!');
     }
 }

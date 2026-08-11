@@ -49,27 +49,40 @@
         color: #fff !important;
     }
 
-    /* CUSTOM WARNA TEKS KJP / NON KJP PADA SELECT2 DROPDOWN */
     .select2-container--default .select2-results__option[data-kjp="1"] {
-        color: #0d6efd !important; /* Warna Biru Terang / Hijau untuk KJP */
+        color: #0d6efd !important;
         font-weight: bold;
     }
     .select2-container--default .select2-results__option[data-kjp="0"] {
-        color: #dc3545 !important; /* Warna Merah untuk Non KJP */
+        color: #dc3545 !important;
+    }
+
+    /* Styling Card Total Harian Modern */
+    .card-stat-modern {
+        background: linear-gradient(135deg, #02b2af 0%, #008080 100%);
+        border-radius: 12px;
+        color: white;
+        box-shadow: 0 4px 15px rgba(0, 128, 128, 0.3);
+        transition: transform 0.2s ease;
+    }
+    .card-stat-modern:hover {
+        transform: translateY(-3px);
     }
 </style>
 
 <!-- Header & Breadcrumb -->
-<div class="content-header">
+<div class="content-header mb-2">
     <div class="container-fluid">
-        <div class="row mb-2">
+        <div class="row align-items-center">
             <div class="col-sm-6">
-                <h1 class="m-0 font-weight-bold text-dark">Manajemen Pembayaran SPP</h1>
+                <h3 class="m-0 font-weight-bold text-dark" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                    <i class="fas fa-wallet text-teal mr-2"></i> Manajemen Pembayaran SPP
+                </h3>
             </div>
             <div class="col-sm-6">
-                <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="#">Keuangan</a></li>
-                    <li class="breadcrumb-item active">Pembayaran SPP</li>
+                <ol class="breadcrumb float-sm-right bg-transparent p-0 m-0">
+                    <li class="breadcrumb-item"><a href="#" class="text-teal">Keuangan</a></li>
+                    <li class="breadcrumb-item active text-muted">Pembayaran SPP</li>
                 </ol>
             </div>
         </div>
@@ -79,18 +92,40 @@
 <section class="content">
     <div class="container-fluid">
 
-        {{-- Pesan Notifikasi Sukses --}}
+        {{-- Pesan Notifikasi Sukses / Error --}}
         @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
                 <i class="fas fa-check-circle mr-1"></i> {{ session('success') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
 
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                <i class="fas fa-exclamation-circle mr-1"></i> {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        {{-- WIDGET TOTAL TRANSAKSI HARI INI (DESAIN MODERN) --}}
+        <div class="row mb-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="card-stat-modern p-3 d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-uppercase text-xs font-weight-bold tracking-wider opacity-8 d-block mb-1">Total Transaksi Hari Ini</span>
+                        <h3 class="font-weight-bolder mb-0">Rp {{ number_format($totalHariIni ?? 0, 0, ',', '.') }}</h3>
+                    </div>
+                    <div class="bg-white-opacity p-3 rounded-circle text-teal" style="background: rgba(255,255,255,0.2); width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; font-size: 22px;">
+                        <i class="fas fa-cash-register"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         {{-- BAGIAN 1: CARD IMPORT EXCEL --}}
-        <div class="card card-outline card-info mb-4">
-            <div class="card-header">
-                <h3 class="card-title font-weight-bold"><i class="fas fa-file-excel mr-1 text-success"></i> Import Data SPP dari Excel</h3>
+        <div class="card card-outline card-info mb-4 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="card-title font-weight-bold text-dark m-0"><i class="fas fa-file-excel mr-2 text-success"></i> Import Data SPP dari Excel</h5>
             </div>
             <div class="card-body">
                 <form action="{{ route('keuangan.spp.import') }}" method="POST" enctype="multipart/form-data">
@@ -98,26 +133,26 @@
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group mb-3">
-                                <label>Tahun Ajaran</label>
+                                <label class="font-weight-bold text-secondary text-sm">Tahun Ajaran</label>
                                 <input type="text" name="tahun_ajaran" class="form-control" value="2026/2027" required>
                             </div>
                         </div>
                         <div class="col-md-8">
                             <div class="form-group mb-3">
-                                <label>Pilih File Excel SPP (.xlsx / .xls)</label>
+                                <label class="font-weight-bold text-secondary text-sm">Pilih File Excel SPP (.xlsx / .xls)</label>
                                 <input type="file" name="file_excel" class="form-control" required accept=".xlsx, .xls">
                             </div>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-info"><i class="fas fa-upload mr-1"></i> Import Sekarang</button>
+                    <button type="submit" class="btn btn-info font-weight-bold"><i class="fas fa-upload mr-1"></i> Import File</button>
                 </form>
             </div>
         </div>
 
         {{-- BAGIAN 2: CARD TABEL DATA TRANSAKSI SPP --}}
-        <div class="card card-primary card-outline">
-            <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
-                <h3 class="card-title font-weight-bold m-0"><i class="fas fa-list mr-1"></i> Transaksi Pembayaran SPP Siswa</h3>
+        <div class="card card-primary card-outline shadow-sm">
+            <div class="card-header bg-white py-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <h5 class="card-title font-weight-bold text-dark m-0"><i class="fas fa-list mr-2 text-primary"></i> Transaksi Pembayaran SPP Siswa</h5>
                 
                 <div class="card-tools d-flex align-items-center gap-2">
                     <!-- FILTER STATUS KJP -->
@@ -129,20 +164,20 @@
                         </select>
                     </form>
 
-                    <a href="{{ route('keuangan.laporan-spp') }}" class="btn btn-info btn-sm mr-2">
+                    <a href="{{ route('keuangan.laporan-spp') }}" class="btn btn-info btn-sm mr-2 font-weight-bold">
                         <i class="fas fa-file-alt mr-1"></i> Laporan SPP
                     </a>
-                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalTambahSpp">
+                    <button class="btn btn-primary btn-sm font-weight-bold" data-bs-toggle="modal" data-bs-target="#modalTambahSpp">
                         <i class="fas fa-plus mr-1"></i> Transaksi Baru
                     </button>
                 </div>
             </div>
-            <div class="card-body">
+            <div class="card-body px-0 pt-0">
                 <div class="table-responsive">
-                    <table class="table table-bordered table-striped">
-                        <thead>
+                    <table class="table table-bordered table-striped align-middle mb-0">
+                        <thead class="bg-light">
                             <tr>
-                                <th>#</th>
+                                <th class="text-center">#</th>
                                 <th>NISN</th>
                                 <th>Nama Siswa</th>
                                 <th>Kelas</th>
@@ -152,20 +187,19 @@
                                 <th>Tanggal & Waktu Bayar</th>
                                 <th>Metode</th>
                                 <th>Status</th>
-                                <th>Aksi</th>
+                                <th class="text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse ($sppPayments as $index => $item)
                                 <tr>
-                                    <td>{{ $loop->iteration }}</td>
+                                    <td class="text-center">{{ $loop->iteration }}</td>
                                     <td>{{ $item->siswa->nisn ?? '-' }}</td>
-                                    <td>{{ $item->siswa->nama ?? 'Siswa Tidak Ditemukan' }}</td>
+                                    <td class="font-weight-bold text-dark">{{ $item->siswa->nama ?? 'Siswa Tidak Ditemukan' }}</td>
                                     <td>{{ $item->siswa->kelas->nama_kelas ?? $item->siswa->kelas ?? '-' }}</td>
                                     
-                                    <!-- BADGE PENANDA KJP / NON KJP -->
                                     <td>
-                                        @if($item->is_kjp)
+                                        @if(optional($item->siswa)->is_kjp == 1 || $item->is_kjp == 1)
                                             <span class="badge badge-kjp px-2 py-1"><i class="fas fa-id-card mr-1"></i> KJP</span>
                                         @else
                                             <span class="badge badge-non-kjp px-2 py-1">NON KJP</span>
@@ -175,12 +209,16 @@
                                     <td>{{ $item->bulan }}</td>
                                     <td>
                                         Rp {{ number_format($item->nominal, 0, ',', '.') }}
-                                        @if($item->is_kjp && $item->nominal == 30000)
+                                        @if((optional($item->siswa)->is_kjp == 1 || $item->is_kjp == 1) && $item->nominal == 30000)
                                             <br><small class="text-muted font-italic">(Rp 30.000 Cash + Rp 170.000 Subsidi)</small>
                                         @endif
                                     </td>
                                     <td>{{ $item->created_at ? \Carbon\Carbon::parse($item->created_at)->translatedFormat('d M Y, H:i') : '-' }}</td>
-                                    <td><span class="badge bg-secondary">{{ $item->metode_pembayaran }}</span></td>
+                                    <td>
+                                        <span class="badge bg-{{ $item->metode_pembayaran == 'CASH' ? 'primary' : ($item->metode_pembayaran == 'DEBET' ? 'info' : 'secondary') }}">
+                                            {{ $item->metode_pembayaran }}
+                                        </span>
+                                    </td>
                                     <td>
                                         @if($item->status == 'PAID')
                                             <span class="badge bg-success">PAID</span>
@@ -188,9 +226,9 @@
                                             <span class="badge bg-warning text-dark">UNPAID</span>
                                         @endif
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         <!-- TOMBOL EDIT -->
-                                        <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditSpp{{ $item->id }}">
+                                        <button class="btn btn-sm btn-warning text-white" data-bs-toggle="modal" data-bs-target="#modalEditSpp{{ $item->id }}" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </button>
 
@@ -198,7 +236,7 @@
                                         <form action="{{ route('keuangan.spp.destroy', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus transaksi ini?');">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger">
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Hapus">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
@@ -208,7 +246,7 @@
                                 <!-- MODAL EDIT SPP -->
                                 <div class="modal fade" id="modalEditSpp{{ $item->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
                                     <div class="modal-dialog modal-dialog-centered">
-                                        <form action="{{ route('keuangan.spp.update', $item->id) }}" method="POST" class="form-spp w-100">
+                                        <form action="{{ route('keuangan.spp.update', $item->id) }}" method="POST" class="form-spp-submit w-100">
                                             @csrf
                                             @method('PUT')
                                             <div class="modal-content">
@@ -218,7 +256,7 @@
                                                     </h5>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
-                                                <div class="modal-body p-4">
+                                                <div class="modal-body p-4 text-left">
                                                     <div class="form-group mb-3">
                                                         <label class="font-weight-bold text-secondary">Pilih / Cari Siswa</label>
                                                         <select name="siswa_id" class="form-control select2-modal" required>
@@ -233,8 +271,8 @@
                                                     <div class="form-group mb-3">
                                                         <label class="font-weight-bold text-secondary">Tipe Siswa (KJP / Non KJP)</label>
                                                         <select name="is_kjp" class="form-control" required>
-                                                            <option value="1" {{ (int)$item->is_kjp === 1 ? 'selected' : '' }}>Penerima KJP</option>
-                                                            <option value="0" {{ (int)$item->is_kjp === 0 ? 'selected' : '' }}>NON KJP</option>
+                                                            <option value="1" {{ (int)$item->is_kjp === 1 || optional($item->siswa)->is_kjp === 1 ? 'selected' : '' }}>Penerima KJP</option>
+                                                            <option value="0" {{ (int)$item->is_kjp === 0 && optional($item->siswa)->is_kjp !== 1 ? 'selected' : '' }}>NON KJP</option>
                                                         </select>
                                                     </div>
 
@@ -287,7 +325,7 @@
                                                 </div>
                                                 <div class="modal-footer py-3">
                                                     <button type="button" class="btn btn-secondary font-weight-bold" data-bs-dismiss="modal">BATAL</button>
-                                                    <button type="submit" class="btn btn-warning font-weight-bold"><i class="fas fa-save mr-1"></i> SIMPAN PERUBAHAN</button>
+                                                    <button type="submit" class="btn btn-warning font-weight-bold text-white"><i class="fas fa-save mr-1"></i> SIMPAN PERUBAHAN</button>
                                                 </div>
                                             </div>
                                         </form>
@@ -295,7 +333,7 @@
                                 </div>
                             @empty
                                 <tr>
-                                    <td colspan="11" class="text-center">Belum ada data transaksi SPP.</td>
+                                    <td colspan="11" class="text-center py-4 text-muted">Belum ada data transaksi SPP.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -310,7 +348,7 @@
 <!-- MODAL TAMBAH TRANSAKSI SPP BARU -->
 <div class="modal fade" id="modalTambahSpp" tabindex="-1" aria-labelledby="modalTambahSppLabel" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
-        <form action="{{ route('keuangan.spp.store') }}" method="POST" class="form-spp w-100">
+        <form action="{{ route('keuangan.spp.store') }}" method="POST" class="form-spp-submit w-100">
             @csrf
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white py-3">
@@ -319,7 +357,7 @@
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-4">
+                <div class="modal-body p-4 text-left">
                     <div class="form-group mb-3">
                         <label class="font-weight-bold text-secondary">Pilih / Cari Siswa</label>
                         <select name="siswa_id" id="selectSiswaTambah" class="form-control select2-modal" onchange="handleSiswaChange(this)" required>
@@ -340,7 +378,6 @@
                         </select>
                     </div>
 
-                    <!-- Alert Keterangan Subsidi untuk Siswa KJP -->
                     <div id="infoKjpAlert" class="alert alert-info py-2 mb-3" style="display: none; font-size: 13px;">
                         <i class="fas fa-info-circle mr-1"></i> <strong>Siswa KJP:</strong> Membayar <strong>Rp 30.000 Cash</strong> + Subsidi KJP <strong>Rp 170.000</strong> (Status otomatis <strong>PAID</strong>).
                     </div>
@@ -371,7 +408,6 @@
                                required>
                         <small class="text-muted d-block mt-1">*Min Rp 10.000 - Max Rp 10.000.000</small>
                         
-                        <!-- Tombol Pilihan Nominal Cepat -->
                         <div class="d-flex flex-wrap gap-1 mt-2">
                             <button type="button" class="btn btn-outline-secondary btn-sm px-2 py-1 text-xs" onclick="setNominal(25000)">25RB</button>
                             <button type="button" class="btn btn-warning text-dark font-weight-bold btn-sm px-2 py-1 text-xs" onclick="setNominal(30000)">30RB</button>
@@ -416,7 +452,6 @@
     </div>
 </div>
 
-<!-- Tambahkan Library CSS & JS Select2 (Jika belum ada di layout utama) -->
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
@@ -427,7 +462,6 @@
 @endpush
 
 <script>
-    // Fungsi otomatis mendeteksi status KJP saat siswa dipilih di Modal Tambah
     function handleSiswaChange(selectElement) {
         let selectedOption = selectElement.options[selectElement.selectedIndex];
         let isKjp = selectedOption.getAttribute('data-kjp');
@@ -481,7 +515,6 @@
             document.body.appendChild(modal);
         });
 
-        // Inisialisasi Select2 pada Modal agar fitur pencarian dan kustomisasi warna jalan
         if (typeof jQuery !== 'undefined' && jQuery().select2) {
             $('.select2-modal').each(function() {
                 $(this).select2({
@@ -495,7 +528,6 @@
                         var $element = $(data.element);
                         var isKjp = $element.attr('data-kjp');
                         
-                        // Berikan warna secara dinamis pada item dropdown berdasarkan atribut data-kjp
                         var color = (isKjp == "1") ? "#0d6efd" : "#dc3545";
                         var $span = $('<span style="color: ' + color + '; font-weight: bold;"></span>');
                         $span.text(data.text);
@@ -505,14 +537,14 @@
             });
         }
 
-        const forms = document.querySelectorAll('.form-spp');
-        forms.forEach(function(form) {
-            form.addEventListener('submit', function() {
+        document.addEventListener('submit', function(e) {
+            const form = e.target;
+            if (form && form.matches('form')) {
                 const nominalInput = form.querySelector('.input-nominal');
                 if (nominalInput) {
-                    nominalInput.value = nominalInput.value.replace(/\D/g, "");
+                    nominalInput.value = nominalInput.value.replace(/\./g, "");
                 }
-            });
+            }
         });
     });
 </script>
