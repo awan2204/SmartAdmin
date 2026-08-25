@@ -57,16 +57,62 @@
         color: #dc3545 !important;
     }
 
-    /* Styling Card Total Harian Modern */
+    /* Styling Card Total Harian Modern dengan Huruf & Angka Extra Besar */
     .card-stat-modern {
         background: linear-gradient(135deg, #02b2af 0%, #008080 100%);
-        border-radius: 12px;
+        border-radius: 8px;
         color: white;
         box-shadow: 0 4px 15px rgba(0, 128, 128, 0.3);
         transition: transform 0.2s ease;
     }
     .card-stat-modern:hover {
-        transform: translateY(-3px);
+        transform: translateY(-2px);
+    }
+
+    /* Styling Jadwal Sholat Minimalis & Elegan */
+    .sholat-item {
+        background: rgba(0, 128, 128, 0.05);
+        border-radius: 6px;
+        padding: 4px 6px;
+        text-align: center;
+        border: 1px solid rgba(0, 128, 128, 0.15);
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    .sholat-time {
+        font-weight: 800;
+        color: #008080;
+        font-size: 13px;
+    }
+    .sholat-name {
+        font-size: 11px;
+        color: #555;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    /* Efek Kedip / Pulse untuk Waktu Sholat Terdekat */
+    @keyframes blinkingCard {
+        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 128, 128, 0.6); background-color: rgba(0, 128, 128, 0.15); }
+        50% { transform: scale(1.03); box-shadow: 0 0 12px 4px rgba(0, 128, 128, 0.4); background-color: rgba(0, 128, 128, 0.3); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 128, 128, 0.6); background-color: rgba(0, 128, 128, 0.15); }
+    }
+    .sholat-active {
+        animation: blinkingCard 1.5s infinite ease-in-out;
+        border: 2px solid #008080 !important;
+    }
+    .badge-terdekat {
+        font-size: 8px;
+        background: #008080;
+        color: white;
+        padding: 1px 4px;
+        border-radius: 4px;
+        position: absolute;
+        top: -7px;
+        left: 50%;
+        transform: translateX(-50%);
+        white-space: nowrap;
+        font-weight: bold;
     }
 </style>
 
@@ -107,45 +153,163 @@
             </div>
         @endif
 
-        {{-- WIDGET TOTAL TRANSAKSI HARI INI (DESAIN MODERN) --}}
-        <div class="row mb-4">
-            <div class="col-lg-4 col-md-6">
-                <div class="card-stat-modern p-3 d-flex align-items-center justify-content-between">
-                    <div>
-                        <span class="text-uppercase text-xs font-weight-bold tracking-wider opacity-8 d-block mb-1">Total Transaksi Hari Ini</span>
-                        <h3 class="font-weight-bolder mb-0">Rp {{ number_format($totalHariIni ?? 0, 0, ',', '.') }}</h3>
+        {{-- BAGIAN 1: EXPORT EXCEL & CARD JADWAL SHOLAT OTOMATIS BERKEDIP --}}
+        <div class="row mb-3">
+            <!-- Kolom Kiri: Export Excel -->
+            <div class="col-lg-5 col-md-6 mb-3 mb-md-0">
+                <div class="card card-outline card-success shadow-sm mb-0 h-100">
+                    <div class="card-header bg-white py-2">
+                        <h6 class="card-title font-weight-bold text-dark m-0" style="font-size: 13px;">
+                            <i class="fas fa-file-excel mr-1 text-success"></i> EXPORT DATA SPP KE EXCEL
+                        </h6>
                     </div>
-                    <div class="bg-white-opacity p-3 rounded-circle text-teal" style="background: rgba(255,255,255,0.2); width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; font-size: 22px;">
-                        <i class="fas fa-cash-register"></i>
+                    <div class="card-body py-3 d-flex align-items-center">
+                        <form action="{{ route('keuangan.spp.export') }}" method="GET" class="w-100">
+                            <div class="row align-items-end g-2">
+                                <div class="col-sm-5 mb-1 mb-sm-0">
+                                    <label class="form-label font-weight-bold text-xs text-secondary mb-1">Tahun Ajaran</label>
+                                    <input type="text" name="tahun_ajaran" class="form-control form-control-sm font-weight-bold" value="2026/2027" required>
+                                </div>
+                                <div class="col-sm-7 mb-1 mb-sm-0">
+                                    <button type="submit" class="btn btn-success btn-sm font-weight-bold w-100 py-1.5 shadow-sm">
+                                        <i class="fas fa-file-download mr-1"></i> Download Excel SPP
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kolom Kanan: Card Jadwal Sholat Live & Indikator Terdekat -->
+            <div class="col-lg-7 col-md-6">
+                <div class="card card-outline card-teal shadow-sm mb-0 h-100" style="border-color: #008080 !important;">
+                    <div class="card-header bg-white py-2 d-flex align-items-center justify-content-between">
+                        <h6 class="card-title font-weight-bold text-dark m-0" style="font-size: 13px;">
+                            <i class="fas fa-mosque mr-1 text-teal"></i> JADWAL SHOLAT OTOMATIS (<span id="tanggalHijriahMasehi">DKI Jakarta</span>)
+                        </h6>
+                        <span class="badge badge-teal px-2" style="font-size: 10px; background-color: #008080; color: #fff;">
+                            <i class="fas fa-clock mr-1"></i> <span id="jamRealtime">--:--:--</span>
+                        </span>
+                    </div>
+                    <div class="card-body py-2 px-3 d-flex align-items-center">
+                        <div class="row w-100 g-1 align-items-center">
+                            <div class="col">
+                                <div class="sholat-item" id="box_Subuh">
+                                    <span class="sholat-name d-block">Subuh</span>
+                                    <span class="sholat-time" id="s_subuh">--:--</span>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="sholat-item" id="box_Dzuhur">
+                                    <span class="sholat-name d-block">Dzuhur</span>
+                                    <span class="sholat-time" id="s_dzuhur">--:--</span>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="sholat-item" id="box_Ashar">
+                                    <span class="sholat-name d-block">Ashar</span>
+                                    <span class="sholat-time" id="s_ashar">--:--</span>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="sholat-item" id="box_Maghrib">
+                                    <span class="sholat-name d-block">Maghrib</span>
+                                    <span class="sholat-time" id="s_maghrib">--:--</span>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="sholat-item" id="box_Isya">
+                                    <span class="sholat-name d-block">Isya</span>
+                                    <span class="sholat-time" id="s_isya">--:--</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        {{-- BAGIAN 1: CARD IMPORT EXCEL --}}
-        <div class="card card-outline card-info mb-4 shadow-sm">
-            <div class="card-header bg-white py-3">
-                <h5 class="card-title font-weight-bold text-dark m-0"><i class="fas fa-file-excel mr-2 text-success"></i> Import Data SPP dari Excel</h5>
-            </div>
-            <div class="card-body">
-                <form action="{{ route('keuangan.spp.import') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group mb-3">
-                                <label class="font-weight-bold text-secondary text-sm">Tahun Ajaran</label>
-                                <input type="text" name="tahun_ajaran" class="form-control" value="2026/2027" required>
-                            </div>
-                        </div>
-                        <div class="col-md-8">
-                            <div class="form-group mb-3">
-                                <label class="font-weight-bold text-secondary text-sm">Pilih File Excel SPP (.xlsx / .xls)</label>
-                                <input type="file" name="file_excel" class="form-control" required accept=".xlsx, .xls">
-                            </div>
+        {{-- WIDGET TOTAL TRANSAKSI & FILTER (SEJAJAR & SEIMBANG) --}}
+        <div class="row mb-4">
+            <!-- WIDGET TOTAL TRANSAKSI (HURUF & ANGKA DIPERBESAR MAKSIMAL) -->
+            <div class="col-lg-5 col-md-6 mb-3 mb-md-0 d-flex">
+                <div class="card-stat-modern p-4 d-flex flex-column justify-content-between w-100">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-uppercase font-weight-bold tracking-wider opacity-9" style="font-size: 14px; letter-spacing: 0.5px;">{{ $labelTotal ?? 'Total Transaksi Hari Ini' }}</span>
+                        
+                        @if(isset($isFiltered) && $isFiltered)
+                            <a href="{{ route('keuangan.spp') }}" class="badge bg-light text-dark px-2 py-1 shadow-sm text-decoration-none font-weight-bold" title="Kembali ke Transaksi Hari Ini">
+                                <i class="fas fa-undo-alt mr-1 text-primary"></i> Reset ke Hari Ini
+                            </a>
+                        @endif
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <!-- Ukuran Angka Diperbesar Sangat Jelas Menjadi 3rem (Kira-kira 48px) -->
+                        <h2 class="font-weight-bolder mb-0" style="font-size: 3rem; letter-spacing: -1px; line-height: 1.1;">Rp {{ number_format($totalNominal ?? 0, 0, ',', '.') }}</h2>
+                        <div class="bg-white-opacity rounded-circle text-teal" style="background: rgba(255,255,255,0.2); width: 65px; height: 65px; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0;">
+                            <i class="fas fa-cash-register"></i>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-info font-weight-bold"><i class="fas fa-upload mr-1"></i> Import File</button>
-                </form>
+                </div>
+            </div>
+
+            <!-- CARD FORM FILTER PERIODE TRANSAKSI -->
+            <div class="col-lg-7 col-md-6 d-flex">
+                <div class="card card-outline card-secondary shadow-sm mb-0 w-100">
+                    <div class="card-header bg-white py-2">
+                        <h6 class="card-title font-weight-bold text-dark m-0" style="font-size: 13px;"><i class="fas fa-filter mr-1 text-secondary"></i> FILTER PERIODE TRANSAKSI</h6>
+                    </div>
+                    <div class="card-body py-3 d-flex flex-column justify-content-between">
+                        
+                        <!-- Notifikasi Peringatan Tanggal Terbalik -->
+                        <div id="dateAlertWarning" class="alert alert-danger py-2 mb-2 shadow-sm" style="display: none; font-size: 12px;">
+                            <i class="fas fa-exclamation-triangle mr-1"></i> <strong>Perhatian:</strong> Tanggal <b>"Dari"</b> tidak boleh lebih besar dari tanggal <b>"Sampai"</b>! Silakan sesuaikan kembali.
+                        </div>
+
+                        <form action="{{ route('keuangan.spp') }}" method="GET" id="formFilterSpp" class="row g-2 align-items-end mb-0" onsubmit="return validateFilterDates(event)">
+                            
+                            @if(request('kjp_filter'))
+                                <input type="hidden" name="kjp_filter" value="{{ request('kjp_filter') }}">
+                            @endif
+
+                            <!-- Filter Tanggal Mulai -->
+                            <div class="col-md-4 mb-1">
+                                <label for="start_date" class="form-label font-weight-bold text-xs text-secondary mb-1">Dari</label>
+                                <input type="date" class="form-control form-control-sm" id="start_date" name="start_date" value="{{ request('start_date') }}">
+                            </div>
+
+                            <!-- Filter Tanggal Selesai -->
+                            <div class="col-md-4 mb-1">
+                                <label for="end_date" class="form-label font-weight-bold text-xs text-secondary mb-1">Sampai</label>
+                                <input type="date" class="form-control form-control-sm" id="end_date" name="end_date" value="{{ request('end_date') }}">
+                            </div>
+
+                            <!-- Filter Berdasarkan Kelas -->
+                            <div class="col-md-4 mb-1">
+                                <label for="kelas" class="form-label font-weight-bold text-xs text-secondary mb-1">Kelas</label>
+                                <select name="kelas" id="kelas" class="form-control form-control-sm">
+                                    <option value="">-- Semua --</option>
+                                    @foreach(\App\Models\Kelas::orderBy('nama_kelas', 'asc')->get() as $k)
+                                        <option value="{{ $k->nama_kelas }}" {{ request('kelas') == $k->nama_kelas ? 'selected' : '' }}>
+                                            {{ $k->nama_kelas }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <!-- Tombol Aksi Filter -->
+                            <div class="col-12 mt-2 text-end">
+                                <button type="submit" class="btn btn-primary btn-sm font-weight-bold px-3">
+                                    <i class="fas fa-search mr-1"></i> Terapkan
+                                </button>
+                                <a href="{{ route('keuangan.spp') }}" class="btn btn-outline-secondary btn-sm font-weight-bold">
+                                    <i class="fas fa-sync mr-1"></i> Reset
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -157,16 +321,22 @@
                 <div class="card-tools d-flex align-items-center gap-2">
                     <!-- FILTER STATUS KJP -->
                     <form method="GET" action="{{ route('keuangan.spp') }}" class="d-inline-block mr-2">
+                        @if(request('start_date')) <input type="hidden" name="start_date" value="{{ request('start_date') }}"> @endif
+                        @if(request('end_date')) <input type="hidden" name="end_date" value="{{ request('end_date') }}"> @endif
+                        @if(request('kelas')) <input type="hidden" name="kelas" value="{{ request('kelas') }}"> @endif
+
                         <select name="kjp_filter" class="form-control form-control-sm" onchange="this.form.submit()">
                             <option value="">-- Filter Semua KJP --</option>
-                            <option value="1" {{ isset($filterKjp) && $filterKjp == '1' ? 'selected' : '' }}>Penerima KJP</option>
-                            <option value="0" {{ isset($filterKjp) && $filterKjp == '0' ? 'selected' : '' }}>NON KJP</option>
+                            <option value="1" {{ (isset($filterKjp) && $filterKjp == '1') || request('kjp_filter') === '1' ? 'selected' : '' }}>Penerima KJP</option>
+                            <option value="0" {{ (isset($filterKjp) && $filterKjp == '0') || request('kjp_filter') === '0' ? 'selected' : '' }}>NON KJP</option>
                         </select>
                     </form>
 
-                    <a href="{{ route('keuangan.laporan-spp') }}" class="btn btn-info btn-sm mr-2 font-weight-bold">
+                    <!-- Tombol Laporan SPP -->
+                    <a href="{{ route('keuangan.laporan-spp', request()->all()) }}" class="btn btn-info btn-sm mr-2 font-weight-bold" target="_blank">
                         <i class="fas fa-file-alt mr-1"></i> Laporan SPP
                     </a>
+                    
                     <button class="btn btn-primary btn-sm font-weight-bold" data-bs-toggle="modal" data-bs-target="#modalTambahSpp">
                         <i class="fas fa-plus mr-1"></i> Transaksi Baru
                     </button>
@@ -345,6 +515,30 @@
     </div>
 </section>
 
+<!-- MODAL POPUP PENGINGAT WAKTU SHOLAT (AZAN) -->
+<div class="modal fade" id="modalAzanSholat" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="background: linear-gradient(135deg, #008080 0%, #02b2af 100%); color: white;">
+            <div class="modal-body text-center py-5 px-4">
+                <div class="mb-3">
+                    <i class="fas fa-mosque fa-3x animate-bounce"></i>
+                </div>
+                <h3 class="font-weight-bold mb-2">WAKTU <span id="namaSholatModal">DZUHUR</span> TELAH TIBA!</h3>
+                <p class="mb-4" style="font-size: 15px; opacity: 0.9;">
+                    "Sesungguhnya shalat itu adalah fardhu yang ditentukan waktunya atas orang-orang yang beriman."<br><b>(QS. An-Nisa: 103)</b>
+                </p>
+                <div class="bg-white text-dark p-3 rounded mb-4 shadow-sm">
+                    <span class="d-block text-muted text-xs font-weight-bold uppercase">Mari Sejenak Hentikan Aktivitas</span>
+                    <h4 class="font-weight-bold text-teal mb-0">Yuk, Segera Ambil Air Wudhu & Menuju Mushola/Masjid! 🤲</h4>
+                </div>
+                <button type="button" class="btn btn-light btn-lg font-weight-bold px-5 text-teal shadow" data-bs-dismiss="modal" onclick="stopAlarm()">
+                    <i class="fas fa-check-circle mr-1"></i> Aamiin, Saya Segera Sholat
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- MODAL TAMBAH TRANSAKSI SPP BARU -->
 <div class="modal fade" id="modalTambahSpp" tabindex="-1" aria-labelledby="modalTambahSppLabel" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
@@ -372,10 +566,12 @@
 
                     <div class="form-group mb-3">
                         <label class="font-weight-bold text-secondary">Tipe Siswa (KJP / Non KJP)</label>
-                        <select name="is_kjp" id="inputTipeKjpTambah" class="form-control" required>
+                        <select id="inputTipeKjpTambah" class="form-control bg-light" disabled>
                             <option value="0">NON KJP</option>
                             <option value="1">Penerima KJP</option>
                         </select>
+                        <input type="hidden" name="is_kjp" id="inputHiddenTipeKjp" value="0">
+                        <small class="text-muted font-italic">*Tipe siswa terkunci otomatis sesuai data master siswa.</small>
                     </div>
 
                     <div id="infoKjpAlert" class="alert alert-info py-2 mb-3" style="display: none; font-size: 13px;">
@@ -462,16 +658,177 @@
 @endpush
 
 <script>
+    let globalTimings = null;
+    let alarmInterval = null;
+
+    // Ambil Jadwal Sholat Otomatis Berdasarkan Tanggal Hari Ini (Tanpa Batas/Auto Update)
+    function fetchJadwalSholat() {
+        let today = new Date();
+        let dd = String(today.getDate()).padStart(2, '0');
+        let mm = String(today.getMonth() + 1).padStart(2, '0');
+        let yyyy = today.getFullYear();
+        let dateStr = `${dd}-${mm}-${yyyy}`;
+
+        let url = `https://api.aladhan.com/v1/timingsByCity/${dateStr}?city=Jakarta&country=Indonesia&method=20`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.data && data.data.timings) {
+                    globalTimings = data.data.timings;
+                    
+                    document.getElementById('s_subuh').innerText = globalTimings.Fajr;
+                    document.getElementById('s_dzuhur').innerText = globalTimings.Dhuhr;
+                    document.getElementById('s_ashar').innerText = globalTimings.Asr;
+                    document.getElementById('s_maghrib').innerText = globalTimings.Maghrib;
+                    document.getElementById('s_isya').innerText = globalTimings.Isha;
+
+                    // Tampilkan tanggal masehi di header card
+                    if(data.data.date && data.data.date.readable) {
+                        document.getElementById('tanggalHijriahMasehi').innerText = data.data.date.readable;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error("Gagal memuat jadwal sholat:", error);
+            });
+    }
+
+    // Jam Realtime & Deteksi Waktu Sholat Terdekat Serta Trigger Pop-up Azan
+    function updateClockAndCheckSholat() {
+        let now = new Date();
+        let hours = String(now.getHours()).padStart(2, '0');
+        let minutes = String(now.getMinutes()).padStart(2, '0');
+        let seconds = String(now.getSeconds()).padStart(2, '0');
+        let currentTimeStr = `${hours}:${minutes}`;
+        let currentFullTimeStr = `${hours}:${minutes}:${seconds}`;
+
+        document.getElementById('jamRealtime').innerText = currentFullTimeStr;
+
+        if (!globalTimings) return;
+
+        let prayerList = [
+            { name: 'Subuh', time: globalTimings.Fajr },
+            { name: 'Dzuhur', time: globalTimings.Dhuhr },
+            { name: 'Ashar', time: globalTimings.Asr },
+            { name: 'Maghrib', time: globalTimings.Maghrib },
+            { name: 'Isya', time: globalTimings.Isha }
+        ];
+
+        // Reset semua status kedip & badge terdekat
+        prayerList.forEach(p => {
+            let box = document.getElementById(`box_${p.name}`);
+            if (box) {
+                box.classList.remove('sholat-active');
+                let existingBadge = box.querySelector('.badge-terdekat');
+                if (existingBadge) existingBadge.remove();
+            }
+        });
+
+        // Cari sholat terdekat berikutnya
+        let nearestPrayer = null;
+        for (let i = 0; i < prayerList.length; i++) {
+            if (currentTimeStr <= prayerList[i].time) {
+                nearestPrayer = prayerList[i];
+                break;
+            }
+        }
+        // Jika sudah lewat Isya, maka sholat terdekat berikutnya adalah Subuh hari esok
+        if (!nearestPrayer) {
+            nearestPrayer = prayerList[0];
+        }
+
+        // Aktifkan animasi kedip pada box terdekat
+        let activeBox = document.getElementById(`box_${nearestPrayer.name}`);
+        if (activeBox && !activeBox.classList.contains('sholat-active')) {
+            activeBox.classList.add('sholat-active');
+            let badge = document.createElement('span');
+            badge.className = 'badge-terdekat';
+            badge.innerHTML = '<i class="fas fa-bolt"></i> Terdekat';
+            activeBox.appendChild(badge);
+        }
+
+        // Cek apakah waktu saat ini TEPAT MENIT AZAN sholat tertentu
+        prayerList.forEach(p => {
+            if (currentTimeStr === p.time && seconds === "00") {
+                triggerAzanPopup(p.name);
+            }
+        });
+    }
+
+    // Fungsi Trigger Pop-Up & Suara Bip Audio Otomatis
+    function triggerAzanPopup(namaSholat) {
+        document.getElementById('namaSholatModal').innerText = namaSholat.toUpperCase();
+        
+        let azanModal = new bootstrap.Modal(document.getElementById('modalAzanSholat'));
+        azanModal.show();
+
+        // Putar suara alarm/bip audio menggunakan Web Audio API browser (tanpa file eksternal)
+        playBeepSound();
+        alarmInterval = setInterval(playBeepSound, 3000); // Ulangi setiap 3 detik selama pop-up aktif
+    }
+
+    // Generator Suara Bip Alarm
+    function playBeepSound() {
+        try {
+            let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            let oscillator = audioCtx.createOscillator();
+            let gainNode = audioCtx.createGain();
+
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); // Nada D5
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.6); // Durasi 0.6 detik
+        } catch(e) {
+            console.log("Audio Context dibatasi browser sebelum ada interaksi klik.");
+        }
+    }
+
+    function stopAlarm() {
+        if (alarmInterval) {
+            clearInterval(alarmInterval);
+            alarmInterval = null;
+        }
+    }
+
+    // Fungsi Validasi Tanggal Filter dengan Alert UI Inline di Card
+    function validateFilterDates(event) {
+        let startDate = document.getElementById('start_date').value;
+        let endDate = document.getElementById('end_date').value;
+        let warningBox = document.getElementById('dateAlertWarning');
+
+        if (startDate && endDate) {
+            let start = new Date(startDate);
+            let end = new Date(endDate);
+
+            if (start > end) {
+                warningBox.style.display = "block";
+                event.preventDefault();
+                return false;
+            } else {
+                warningBox.style.display = "none";
+            }
+        }
+        return true;
+    }
+
     function handleSiswaChange(selectElement) {
         let selectedOption = selectElement.options[selectElement.selectedIndex];
         let isKjp = selectedOption.getAttribute('data-kjp');
         let selectTipeKjp = document.getElementById('inputTipeKjpTambah');
+        let hiddenTipeKjp = document.getElementById('inputHiddenTipeKjp');
         let inputNominal = document.getElementById('inputNominalTambah');
         let infoKjpAlert = document.getElementById('infoKjpAlert');
         let statusSelect = document.getElementById('inputStatusTambah');
 
         if (selectElement.value !== "") {
             selectTipeKjp.value = isKjp;
+            hiddenTipeKjp.value = isKjp; 
             
             if (isKjp == "1") {
                 inputNominal.value = "30.000";
@@ -484,6 +841,7 @@
             }
         } else {
             selectTipeKjp.value = "0";
+            hiddenTipeKjp.value = "0";
             inputNominal.value = "";
             infoKjpAlert.style.display = "none";
         }
@@ -510,6 +868,15 @@
     }
 
     document.addEventListener("DOMContentLoaded", function() {
+        // Panggil jadwal sholat pertama kali
+        fetchJadwalSholat();
+
+        // Jalankan jam realtime & cek waktu terdekat setiap 1 detik
+        setInterval(updateClockAndCheckSholat, 1000);
+
+        // Update jadwal sholat otomatis setiap pergantian hari (cek tiap 1 jam)
+        setInterval(fetchJadwalSholat, 3600000);
+
         const modals = document.querySelectorAll('.modal');
         modals.forEach(function(modal) {
             document.body.appendChild(modal);
@@ -533,13 +900,13 @@
                         $span.text(data.text);
                         return $span;
                     }
-                });
+                }); 
             });
         }
 
         document.addEventListener('submit', function(e) {
             const form = e.target;
-            if (form && form.matches('form')) {
+            if (form && form.matches('form') && !form.id.includes('formFilterSpp')) {
                 const nominalInput = form.querySelector('.input-nominal');
                 if (nominalInput) {
                     nominalInput.value = nominalInput.value.replace(/\./g, "");
