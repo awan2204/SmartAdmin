@@ -15,16 +15,33 @@
                     </div>
                 </div>
                 <div class="card-body px-0 pb-2">
-                    <!-- Form Filter -->
-                    <div class="px-4 pb-3">
-                        <form method="GET" action="{{ route('keuangan.laporan-spp') }}" class="row g-3 align-items-center">
-                            <div class="col-auto">
-                                <label class="form-label font-weight-bold">Nama Siswa:</label>
-                                <input type="text" class="form-control border px-2" name="nama" value="{{ request('nama') }}" placeholder="Cari nama...">
+                    
+                    {{-- BANNER INFORMASI FILTER TANGGAL AKTIF --}}
+                    @if(request('start_date') || request('end_date') || request('kelas') || request('id_kelas') || request('nama'))
+                        <div class="px-4 pt-2">
+                            <div class="alert alert-info py-2 mb-3 text-sm text-white shadow-sm">
+                                <i class="fas fa-filter mr-1"></i> <strong>Filter Aktif:</strong> 
+                                @if(request('start_date')) Dari: <strong>{{ request('start_date') }}</strong> @endif
+                                @if(request('end_date')) s/d: <strong>{{ request('end_date') }}</strong> @endif
+                                @if(request('nama')) | Nama: <strong>{{ request('nama') }}</strong> @endif
                             </div>
-                            <div class="col-auto">
-                                <label class="form-label font-weight-bold">Kelas:</label>
-                                <select name="id_kelas" class="form-control border px-2">
+                        </div>
+                    @endif
+
+                    <!-- Form Filter (Sudah Disertakan Tanggal Mulai & Selesai) -->
+                    <div class="px-4 pb-3">
+                        <form method="GET" action="{{ route('keuangan.laporan-spp') }}" class="row g-3 align-items-end">
+                            
+                            {{-- Input Nama Siswa --}}
+                            <div class="col-md-3">
+                                <label class="form-label font-weight-bold text-xs">Nama Siswa:</label>
+                                <input type="text" class="form-control form-control-sm border px-2" name="nama" value="{{ request('nama') }}" placeholder="Cari nama...">
+                            </div>
+
+                            {{-- Input Kelas --}}
+                            <div class="col-md-3">
+                                <label class="form-label font-weight-bold text-xs">Kelas:</label>
+                                <select name="id_kelas" class="form-control form-control-sm border px-2">
                                     <option value="">-- Semua Kelas --</option>
                                     @foreach($kelasList as $kelas)
                                         <option value="{{ $kelas->id }}" {{ request('id_kelas') == $kelas->id ? 'selected' : '' }}>
@@ -33,8 +50,23 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-auto align-self-end">
-                                <button type="submit" class="btn btn-primary mb-0">Filter</button>
+
+                            {{-- Input Dari Tanggal --}}
+                            <div class="col-md-2">
+                                <label class="form-label font-weight-bold text-xs">Dari Tanggal:</label>
+                                <input type="date" class="form-control form-control-sm border px-2" name="start_date" value="{{ request('start_date') }}">
+                            </div>
+
+                            {{-- Input Sampai Tanggal --}}
+                            <div class="col-md-2">
+                                <label class="form-label font-weight-bold text-xs">Sampai Tanggal:</label>
+                                <input type="date" class="form-control form-control-sm border px-2" name="end_date" value="{{ request('end_date') }}">
+                            </div>
+
+                            {{-- Tombol Filter & Reset --}}
+                            <div class="col-md-2 d-flex gap-1">
+                                <button type="submit" class="btn btn-primary btn-sm mb-0 px-3"><i class="fas fa-search mr-1"></i> Filter</button>
+                                <a href="{{ route('keuangan.laporan-spp') }}" class="btn btn-outline-secondary btn-sm mb-0" title="Reset Filter"><i class="fas fa-sync"></i></a>
                             </div>
                         </form>
                     </div>
@@ -97,8 +129,10 @@
                                                             'sudah_debet' => false, 
                                                             'status' => 'BELUM', 
                                                             'nominal' => 0, 
+                                                            'nominal_cash' => 0,
                                                             'keterangan' => 'Belum'
                                                         ];
+                                                        $nominalCashBulanIni = $infoBulan['nominal_cash'] ?? 0;
                                                     @endphp
 
                                                     @if(isset($siswa) && $siswa->is_kjp == 1)
@@ -112,18 +146,27 @@
                                                                     <span class="badge bg-success w-100 py-1 mb-1" style="font-size: 9px;">LUNAS (DEBET)</span>
                                                                     <span class="text-success font-weight-bold d-block" style="font-size: 7.5px;">Cash + Debet 170rb</span>
                                                                 @elseif(isset($infoBulan['can_debet']) && $infoBulan['can_debet'])
-                                                                    <form action="{{ route('keuangan.spp.debet-kjp') }}" method="POST">
+                                                                    <form id="form-debet-{{ $siswa->id }}-{{ $bulan }}" action="{{ route('keuangan.spp.debet-kjp') }}" method="POST">
                                                                         @csrf
                                                                         <input type="hidden" name="siswa_id" value="{{ $siswa->id }}">
                                                                         <input type="hidden" name="bulan" value="{{ $bulan }}">
-                                                                        <button type="submit" class="btn btn-warning btn-xs w-100 py-1 text-dark font-weight-bold mb-1" style="font-size: 9px; line-height: 1.2;">
+                                                                        <button type="button" onclick="confirmDebet('{{ $siswa->id }}', '{{ $bulan }}', '{{ $siswa->nama }}')" class="btn btn-warning btn-xs w-100 py-1 text-dark font-weight-bold mb-1" style="font-size: 9px; line-height: 1.2;">
                                                                             <i class="fas fa-hand-pointer mr-1"></i> BELUM DEBET
                                                                         </button>
                                                                     </form>
-                                                                    <span class="text-muted d-block" style="font-size: 7.5px;">Klik untuk Debet</span>
+                                                                    {{-- Status Cash Lunas 30rb --}}
+                                                                    <span class="text-success font-weight-bold d-block" style="font-size: 8px;">
+                                                                        Cash: Rp {{ number_format($nominalCashBulanIni, 0, ',', '.') }} (Lunas)
+                                                                    </span>
                                                                 @else
-                                                                    <span class="badge bg-secondary text-white w-100 py-1 mb-1" style="font-size: 7.5px; opacity: 0.8;">BELUM COVER CASH</span>
-                                                                    <span class="text-muted d-block" style="font-size: 7px;">Cash &lt; Rp 30rb</span>
+                                                                    <span class="badge bg-secondary text-white w-100 py-1 mb-1" style="font-size: 7.5px; opacity: 0.8;">BELUM BAYAR CASH</span>
+                                                                    <span class="text-muted d-block" style="font-size: 7.5px;">
+                                                                        @if($nominalCashBulanIni > 0)
+                                                                            Baru bayar: Rp {{ number_format($nominalCashBulanIni, 0, ',', '.') }}
+                                                                        @else
+                                                                            Belum ada pembayaran
+                                                                        @endif
+                                                                    </span>
                                                                 @endif
                                                             </div>
                                                         </div>
@@ -278,8 +321,27 @@
     </div>
 @endforeach
 
-{{-- Script untuk memblokir tombol Back Browser dan memaksa kembali lewat tombol khusus --}}
+{{-- Tambahkan CDN SweetAlert2 (jika belum ada di layout utama) & Script Konfirmasi --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    function confirmDebet(siswaId, bulan, namaSiswa) {
+        Swal.fire({
+            title: 'Konfirmasi Debet KJP',
+            html: `Apakah Anda yakin ingin mendebet subsidi KJP sebesar <b>Rp 170.000</b> dari Rekening DKI untuk siswa <b>${namaSiswa}</b> pada bulan <b>${bulan}</b>?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, Lanjutkan!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('form-debet-' + siswaId + '-' + bulan).submit();
+            }
+        });
+    }
+
+    {{-- Script untuk memblokir tombol Back Browser --}}
     history.pushState(null, null, location.href);
     window.onpopstate = function () {
         history.go(1);

@@ -426,3 +426,14 @@ Route::prefix('keuangan')->name('keuangan.')->group(function () {
 });
 Route::put('/administrasi/siswa-update/{siswa}', [App\Http\Controllers\SiswaController::class, 'update'])->name('siswa.update');
 Route::post('/keuangan/spp/debet-kjp', [App\Http\Controllers\SppController::class, 'debetKjp'])->name('keuangan.spp.debet-kjp');
+
+
+
+// Di dalam group route keuangan / spp Anda:
+Route::get('/keuangan/spp', [SppController::class, 'index'])->name('keuangan.spp');
+Route::post('/keuangan/spp/store', [SppController::class, 'store'])->name('keuangan.spp.store');
+Route::put('/keuangan/spp/{id}', [SppController::class, 'update'])->name('keuangan.spp.update');
+Route::delete('/keuangan/spp/{id}', [SppController::class, 'destroy'])->name('keuangan.spp.destroy');
+
+// TAMBAHKAN ROUTE EXPORT INI:
+Route::get('/keuangan/spp/export', [SppController::class, 'exportExcel'])->name('keuangan.spp.export');
