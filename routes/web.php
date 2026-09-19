@@ -47,6 +47,9 @@ use App\Http\Controllers\KeuanganController;
 
 use App\Http\Controllers\SppController;
 
+use App\Models\SppPayment;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -437,3 +440,8 @@ Route::delete('/keuangan/spp/{id}', [SppController::class, 'destroy'])->name('ke
 
 // TAMBAHKAN ROUTE EXPORT INI:
 Route::get('/keuangan/spp/export', [SppController::class, 'exportExcel'])->name('keuangan.spp.export');
+
+Route::get('/keuangan/spp/bulan-belum-lunas/{siswaId}', [SppController::class, 'getBulanBelumLunas'])->name('keuangan.spp.bulan-belum-lunas');
+
+// Route Cetak Struk via SppController
+Route::get('/keuangan/spp/cetak-struk/{id}', [App\Http\Controllers\SppController::class, 'cetakStruk'])->name('keuangan.spp.cetak-struk');
